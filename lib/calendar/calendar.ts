@@ -1,8 +1,7 @@
+import { Day } from "../time/time";
 
 export const month_names = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 export const day_names = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-//in ms
-export const Day = 1000 * 3600 * 24;
 
 interface Page {
   year: number;
