@@ -11,16 +11,14 @@
 
 //The way this is used is basically like Date.getTime() 
 //but instead of January 1970, It'll just base it off 12:00AM
-type Duration = number;
+export type Duration = number;
 
-interface TimeStamp {
+export interface TimeStamp {
   //given a string "12:51 AM",
   hours: number;        //12
   minutes: number;      //51
   mod: number | null;   //AM
 }
-
-
 
 export const Second: Duration = 1000;
 export const Minute: Duration = Second * 60;
