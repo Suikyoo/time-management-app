@@ -4,6 +4,7 @@ import {useRef, useState} from "react";
 import { View, Text, StyleSheet, Button, FlatList, ViewabilityConfig } from "react-native";
 
 import Calendar from "@/components/Calendar";
+import TaskPalette from "@/components/TaskPalette";
 
 export default function Index() {
   const [date, setDate] = useState(new Date());
@@ -88,6 +89,8 @@ export default function Index() {
         }}
         viewabilityConfig={viewabilityConfig}
         />
+
+        <TaskPalette/>
       </View>
 
       );

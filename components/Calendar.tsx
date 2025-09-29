@@ -1,13 +1,62 @@
 import {getPage, month_names, day_names} from "@/lib/calendar/calendar";
-import { View, Text, StyleSheet, useWindowDimensions } from "react-native";
+import {Task, useTaskList} from "@/lib/task/task";
+import { View, Text, StyleSheet } from "react-native";
 
 interface CalendarProp {
   date: Date;
 }
+
+interface CalendarDayProp {
+  day: number;
+  tasks: Task[];
+  active: boolean;
+  
+}
+function CalendarDay({day, tasks, active}: CalendarDayProp) {
+  return (
+      <View style={[styles.item, active ? {outlineWidth: 1} : {outlineWidth: 0}]}>
+
+      {tasks.map((t) => (
+            <View style={[styles.tag, {backgroundColor: t.color}]} key={t.id}></View>
+            ))}
+
+      { active ? <Text style={{color: "#888888"}}>{day}</Text> : <Text>{day}</Text> }
+      </View>
+      )
+
+}
 export default function Calendar({date}: CalendarProp) {
   const page = getPage(date);
+  const tasks = useTaskList(state => state.tasks);
+  return (
+    <View style={styles.container}>
+      <View style={styles.nav}>
+      <Text>{month_names[page.month]}</Text>
+      </View>
+      <View style={styles.calendar}>
+      {
+        day_names.map((v, index) => (
+          <View key={index} style={styles.header}>
+          <Text>{v.substring(0, 3)}</Text>
+          </View>
+        )
+            )
+      }
+      {
+        page.days.map((d, index) => {
+            const s = tasks.filter((t) => t.date?.getMonth() == page.month);
+            return (
+              <CalendarDay key={index} day={d} tasks={s} active={index >= page.offset} />
+              )}
+            )
 
-  const styles = StyleSheet.create({
+      }
+      </View>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
     container: {
       flexGrow: 1,
       width: `${100/3}%`,
@@ -56,36 +105,16 @@ export default function Calendar({date}: CalendarProp) {
       flexDirection: "row",
       justifyContent: "center",
       alignItems: "center",
+    },
+
+    tag: {
+      width: 20,
+      height: 20,
+      borderRadius: 20,
+
     }
+
 
   });
  
-  return (
-    <View style={styles.container}>
-      <View style={styles.nav}>
-      <Text>{month_names[page.month]}</Text>
-      </View>
-      <View style={styles.calendar}>
-      {
-        day_names.map((v, index) => (
-          <View key={index} style={styles.header}>
-          <Text>{v.substring(0, 3)}</Text>
-          </View>
-        )
-                     )
-      }
-      {
-        page.days.map((d, index) => (
-          <View key={index} style={[styles.item, index < page.offset ? {outlineWidth: 0} : {outlineWidth: 1}]}>
-          { index < page.offset ? <Text style={{color: "#888888"}}>{d}</Text> : <Text>{d}</Text> }
-          </View>
-        )
-                     )
-
-      }
-      </View>
-    </View>
-  );
-}
-
 
