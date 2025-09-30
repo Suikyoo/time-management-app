@@ -11,7 +11,7 @@ export interface Task {
   date?: Date;
   timestamp?: TimeStamp,
   duration?: Duration,
-  
+
 }
 
 interface taskData {
@@ -37,7 +37,7 @@ export const useTaskList = create<taskStoreData>((set) => (
   {
     tasks: [],
     createTask: (task) => set((state) => ({tasks: state.tasks.concat([task])})),
-    deleteTask: (id) => set((state) => ({tasks: state.tasks.filter((t) => t.id === id)})),
+      deleteTask: (id) => set((state) => ({tasks: state.tasks.filter((t) => t.id === id)})),
   }
 ));
 
@@ -70,6 +70,6 @@ export const  useTaskIndex = create<taskStoreData>((set) => (
 
     ],
     createTask: (task) => set((state) => ({tasks: state.tasks.concat([task])})),
-    deleteTask: (id) => set((state) => ({tasks: state.tasks.filter((t) => t.id === id)})),
+      deleteTask: (id) => set((state) => ({tasks: state.tasks.filter((t) => t.id === id)})),
   }
 ));

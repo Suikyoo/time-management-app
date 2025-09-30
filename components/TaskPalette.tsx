@@ -9,27 +9,27 @@ export default function TaskPalette() {
   const setTask = useTaskTarget(state => state.setTask);
 
   const styles = StyleSheet.create({
-      circle: {
-        width: 20,
-        height: 20,
-        borderRadius: 10,
-      }
+    circle: {
+      width: 20,
+      height: 20,
+      borderRadius: 10,
+    }
   });
 
   return (
-      <View>
-        {tasks.map((t) => (
-              <TouchableOpacity key={t.id} onPressOut={() => setTask(currTask)}>
-                <View style={[styles.circle, {backgroundColor: t.color}]}></View>
-              </TouchableOpacity>
-              ))}
+    <View>
+    {tasks.map((t) => (
+      <TouchableOpacity key={t.id} onPressOut={() => setTask(currTask)}>
+      <View style={[styles.circle, {backgroundColor: t.color}]}></View>
+      </TouchableOpacity>
+    ))}
 
-        <Link href={"/(tabs)/settings"}>
-          <View style={styles.circle}>
-            <Text>+</Text>
-          </View>
-        </Link>
+    <Link href={"/(tabs)/settings"}>
+    <View style={styles.circle}>
+    <Text>+</Text>
+    </View>
+    </Link>
 
-      </View>
-      )
+    </View>
+  )
 }
