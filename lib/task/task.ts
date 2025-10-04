@@ -1,31 +1,40 @@
 import {ColorValue} from "react-native";
 import {type Duration, TimeStamp} from "../time/time";
 import { create, createStore, StoreApi, UseBoundStore, useStore } from "zustand";
+import {addToTaskIndex, addToTaskList, deleteFromTaskIndex, deleteFromTaskList, getTaskIndex, getTaskList} from "../db/db";
+import {SQLiteDatabase} from "expo-sqlite";
 
-export interface Task {
+export interface TaskTemplate {
+  id: number;
   color: ColorValue;
   title: string;
   description: string;
+  native: boolean;
 
-  id: number;
-  date?: Date;
   timestamp?: TimeStamp,
   duration?: Duration,
 
 }
 
+export interface Task extends TaskTemplate{
+  date: Date;
+  template_id: number;
+
+}
+
 interface taskData {
-  task: Task | null;
-  setTask: (task: Task|null) => void;
+  task: TaskTemplate| null;
+  setTask: (task: TaskTemplate|null) => void;
 }
 //both the taskList as well as the taskIndex have separate indexing systems
 //update: they both share the same IDs now, 
 //taskIndex have non-repeating IDs. They're the paintbrushes while
 //taskList have repeating IDs. They're the painted pigments in the calendar that the paintbrushes have made.
-interface taskStoreData {
-  tasks: Task[];
-  createTask: (task: Task) => void;
-  deleteTask: (id: number) => void;
+interface taskStoreData<T> {
+  tasks: T[];
+  loadTasks: (db: SQLiteDatabase) => Promise<void>;
+  createTask: (db: SQLiteDatabase, task: T) => Promise<void>;
+  deleteTask: (db:SQLiteDatabase, id: number) => Promise<void>;
 }
 
 export const useTaskTarget = create<taskData>((set) => (
@@ -35,43 +44,43 @@ export const useTaskTarget = create<taskData>((set) => (
   }
 ))
 
-export const useTaskList = create<taskStoreData>((set) => (
+export const useTaskList = create<taskStoreData<Task>>((set) => (
   {
     tasks: [],
-    createTask: (task) => set((state) => ({tasks: state.tasks.concat([task])})),
-    deleteTask: (id) => set((state) => ({tasks: state.tasks.filter((t) => t.id === id)})),
+    loadTasks: async (db) => {
+      const data = await getTaskList(db);
+      set(() => ({tasks: data}))
+    },
+    createTask: async (db, task) => {
+      const id = await addToTaskList(db, task);
+      set((state) => ({tasks: state.tasks.concat([{...task, id}])}));
+    },
+
+    deleteTask: async (db, id) => {
+      await deleteFromTaskList(db, id);
+      set((state) => ({tasks: state.tasks.filter((t) => t.id !== id)}))
+    },
   }
 ));
 
-export const  useTaskIndex = create<taskStoreData>((set) => (
+export const  useTaskIndex = create<taskStoreData<TaskTemplate>>((set) => (
   {
-    tasks: [
-      //seed
-      {
-        id: 0,
-        color: "#ff0000", 
-        title: "task 1",
-        description: "this is task 1"
+    tasks: [],
+    loadTasks: async (db) => {
+      const data = await getTaskIndex(db);
+      set(() => ({tasks: data}))
+    },
+    createTask: async (db, task) => {
+      const id = await addToTaskIndex(db, task)
+      set((state) => ({tasks: state.tasks.concat([{...task, id}])}));
+    },
 
-      }, 
-      {
-        id: 1,
-        color: "#00ff00", 
-        title: "task 2",
-        description: "this is task 2"
-
-      },
-      {
-        id: 2,
-        color: "#0000ff", 
-        title: "task 3",
-        description: "this is task 3"
-
-      }
-
-
-    ],
-    createTask: (task) => set((state) => ({tasks: state.tasks.concat([{...task, id: state.tasks.length}])})),
-    deleteTask: (id) => set((state) => ({tasks: state.tasks.filter((t) => t.id === id)})),
+    deleteTask: async (db, id) => {
+      await deleteFromTaskIndex(db, id);
+      set((state) => ({tasks: state.tasks.filter((t) => t.id !== id)}))
+    },  
   }
 ));
+
+//await useTaskIndex(s => s.loadTasks)();
+//await useTaskList(s => s.loadTasks)();

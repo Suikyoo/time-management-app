@@ -1,5 +1,6 @@
 import {getPage, month_names, day_names} from "@/lib/calendar/calendar";
 import {Task, useTaskList, useTaskTarget} from "@/lib/task/task";
+import {useSQLiteContext} from "expo-sqlite";
 import {useEffect, useState} from "react";
 import { View, Text, StyleSheet, FlatList, TouchableOpacity } from "react-native";
 
@@ -21,7 +22,7 @@ function CalendarDay({day, tasks, active}: CalendarDayProp) {
 
       <FlatList 
       data={tasks} 
-      keyExtractor={t => t.id + (t.date ? t.date.getTime().toString() : "")} 
+      keyExtractor={t => t.id.toString()} 
       renderItem={i => (
         <View style={[styles.tag, {backgroundColor: i.item.color}]} ></View>
       )}
@@ -32,6 +33,8 @@ function CalendarDay({day, tasks, active}: CalendarDayProp) {
 
 }
 export default function Calendar({date, active}: CalendarProp) {
+  const db = useSQLiteContext();
+
   const page = getPage(date);
 
   const addTask = useTaskList(state => state.createTask);
@@ -39,17 +42,15 @@ export default function Calendar({date, active}: CalendarProp) {
 
   const target = useTaskTarget(state => state.task);
 
-  const press = (tasks: Task[], newDate: Date) => {
+  const press = async(tasks: Task[], newDate: Date) => {
     if (!target) {
       return
     }
-    if (tasks.find(t => t.id === target.id)) {
-      console.log("del")
-      deleteTask(target.id);
+    if (tasks.find(t => t.template_id === target.id)) {
+      await deleteTask(db, target.id);
     }
     else {
-      console.log("add")
-      addTask({...target, date: newDate})
+      await addTask(db, {...target, date: newDate, template_id: target.id})
     }
 
   }
@@ -57,7 +58,7 @@ export default function Calendar({date, active}: CalendarProp) {
 
   useEffect(() => {
     if (active) {
-      const unsubscribe = useTaskList.subscribe((curr, _) => {setProxyTaskList(curr.tasks)});
+      const unsubscribe = useTaskList.subscribe((curr, _) => {console.log(curr.tasks), setProxyTaskList(curr.tasks)});
       return unsubscribe;
     }
   }, [active]);
@@ -78,15 +79,20 @@ export default function Calendar({date, active}: CalendarProp) {
     }
     {
       page.days.map((d, index) => {
-        const new_date = new Date(date.getUTCFullYear(), date.getUTCMonth(), d);
-        const s = proxyTaskList.filter((t) => (new_date.toISOString().slice(10) === t.date?.toISOString().slice(10)));
+        const active = index >= page.offset;
+        const new_date = new Date(date.getUTCFullYear(), date.getUTCMonth() - (active ? 0 : 1), d);
+        const s = proxyTaskList.filter((t) => {
+          const a = new_date.toISOString().slice(0, 10);
+          const b = t.date?.toISOString().slice(0, 10);
+          return a === b;
+        })
         return (
           <TouchableOpacity 
           style={[styles.item, index >= page.offset ? {outlineWidth: 1} : {outlineWidth: 0}]} 
           onPress={() => press(s, new_date)}
           key={index}
           >
-            <CalendarDay day={d} tasks={s} active={index >= page.offset} />
+            <CalendarDay day={d} tasks={s} active={active} />
           </TouchableOpacity>
         )}
                    )
@@ -154,7 +160,6 @@ const styles = StyleSheet.create({
     borderRadius: 20,
 
   }
-
 
 });
 

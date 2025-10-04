@@ -1,15 +1,17 @@
-import {Task, useTaskIndex} from "@/lib/task/task";
+import {Task, TaskTemplate, useTaskIndex} from "@/lib/task/task";
 import {timeStampAfter, timeStampToString} from "@/lib/time/time";
+import {useSQLiteContext} from "expo-sqlite";
 import {View, Text, Button} from "react-native";
 
 interface Props {
-  task: Task
+  task: TaskTemplate;
 }
 export default function TaskCard({task}: Props) {
+  const db = useSQLiteContext();
   const deleteTask = useTaskIndex( state => state.deleteTask );
   const press = () => {
     if (task.id) {
-      deleteTask(task.id);
+      deleteTask(db, task.id);
     }
   }
   return (

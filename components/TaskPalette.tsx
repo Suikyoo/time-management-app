@@ -5,7 +5,6 @@ import { View, Text, StyleSheet, TouchableOpacity, FlatList } from "react-native
 export default function TaskPalette() {
   //this is the task index, which are the created tasks that you then use for the taskList
   const tasks = useTaskIndex(state => state.tasks);
-  let currTask = useTaskTarget(state => state.task);
   const setTask = useTaskTarget(state => state.setTask);
 
   const styles = StyleSheet.create({

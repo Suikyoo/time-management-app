@@ -1,10 +1,11 @@
 import {getDateAfter, getFinalDate} from "@/lib/calendar/calendar";
 import { Day } from "@/lib/time/time";
-import {useRef, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import { View, Text, StyleSheet, Button, FlatList, ViewabilityConfig } from "react-native";
 
 import Calendar from "@/components/Calendar";
 import TaskPalette from "@/components/TaskPalette";
+
 
 export default function Index() {
   const [date, setDate] = useState(new Date());
@@ -38,59 +39,58 @@ export default function Index() {
   })
 
   return (
-      <View style={styles.container}>
-
-        <FlatList 
-        ref={flatListRef}
-        data={viewData} 
-        renderItem={item => (
-            <Calendar date={item.item} active={item.index==1}/> 
-            )}
-        horizontal
-        pagingEnabled
-        initialScrollIndex={1}
-        scrollEnabled={calendarScroll}
-        getItemLayout={(_, index) => ({length: calendarWidth, offset: calendarWidth * index, index})}
-        onLayout={(e) => {
+    <View style={styles.container}>
+      <FlatList 
+      ref={flatListRef}
+      data={viewData} 
+      renderItem={item => (
+        <Calendar date={item.item} active={item.index==1}/> 
+      )}
+      horizontal
+      pagingEnabled
+      initialScrollIndex={1}
+      scrollEnabled={calendarScroll}
+      getItemLayout={(_, index) => ({length: calendarWidth, offset: calendarWidth * index, index})}
+      onLayout={(e) => {
         e.currentTarget.measure((_, __, width) => {setCalendarWidth(width)})
-        }}
-        style={styles.calendarList}
-        keyExtractor={(item) => item.getFullYear().toString() + "-" + item.getMonth().toString()}
-        contentContainerStyle={{width: "300%"}}
-        disableIntervalMomentum
-        onViewableItemsChanged={(i) => {
-          const active_item = i.changed.find((v) => v.isViewable);
+      }}
+      style={styles.calendarList}
+      keyExtractor={(item) => item.getFullYear().toString() + "-" + item.getMonth().toString()}
+      contentContainerStyle={{width: "300%"}}
+      disableIntervalMomentum
+      onViewableItemsChanged={(i) => {
+        const active_item = i.changed.find((v) => v.isViewable);
 
-          if (!active_item || active_item.index == 1) {
-            return; 
-          }
+        if (!active_item || active_item.index == 1) {
+          return; 
+        }
 
-          clearTimeout(toggleScrollTimeout.current);
-          setCalendarScroll(false);
-          toggleScrollTimeout.current = setTimeout(() => setCalendarScroll(true), viewabilityConfig.minimumViewTime);
+        clearTimeout(toggleScrollTimeout.current);
+        setCalendarScroll(false);
+        toggleScrollTimeout.current = setTimeout(() => setCalendarScroll(true), viewabilityConfig.minimumViewTime);
 
-         //getItemLayout={(_, index) => ({length: calendarWidth, offset: calendarWidth * index, index})}
-         //onLayout={(e) => {
-         //e.currentTarget.measure((_, __, width) => {setCalendarWidth(width)})
-         //}}
-          if (active_item.index == 0) {
-            //-----------------------------------------------used to be viewData[0]
-            setViewData([getPreviousMonth(active_item.item), active_item.item, viewData[1]])
-          }
-          else if (active_item.index == 2) {
-            setViewData([viewData[1], active_item.item, getNextMonth(active_item.item)])
-          }
+        //getItemLayout={(_, index) => ({length: calendarWidth, offset: calendarWidth * index, index})}
+        //onLayout={(e) => {
+        //e.currentTarget.measure((_, __, width) => {setCalendarWidth(width)})
+        //}}
+        if (active_item.index == 0) {
+          //-----------------------------------------------used to be viewData[0]
+          setViewData([getPreviousMonth(active_item.item), active_item.item, viewData[1]])
+        }
+        else if (active_item.index == 2) {
+          setViewData([viewData[1], active_item.item, getNextMonth(active_item.item)])
+        }
 
-          requestAnimationFrame(() => {
-            flatListRef.current?.scrollToIndex({index: 1, animated: false});
-          })
+        requestAnimationFrame(() => {
+          flatListRef.current?.scrollToIndex({index: 1, animated: false});
+        })
 
-        }}
-        viewabilityConfig={viewabilityConfig}
-        />
+      }}
+      viewabilityConfig={viewabilityConfig}
+      />
 
-        <TaskPalette/>
-      </View>
+      <TaskPalette/>
+    </View>
 
       );
 }
