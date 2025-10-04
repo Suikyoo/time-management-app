@@ -1,13 +1,13 @@
 import {ColorValue} from "react-native";
 import {type Duration, TimeStamp} from "../time/time";
-import { create } from "zustand";
+import { create, createStore, StoreApi, UseBoundStore, useStore } from "zustand";
 
 export interface Task {
-  id: number;
   color: ColorValue;
   title: string;
   description: string;
 
+  id: number;
   date?: Date;
   timestamp?: TimeStamp,
   duration?: Duration,
@@ -18,8 +18,10 @@ interface taskData {
   task: Task | null;
   setTask: (task: Task|null) => void;
 }
-
 //both the taskList as well as the taskIndex have separate indexing systems
+//update: they both share the same IDs now, 
+//taskIndex have non-repeating IDs. They're the paintbrushes while
+//taskList have repeating IDs. They're the painted pigments in the calendar that the paintbrushes have made.
 interface taskStoreData {
   tasks: Task[];
   createTask: (task: Task) => void;
@@ -37,7 +39,7 @@ export const useTaskList = create<taskStoreData>((set) => (
   {
     tasks: [],
     createTask: (task) => set((state) => ({tasks: state.tasks.concat([task])})),
-      deleteTask: (id) => set((state) => ({tasks: state.tasks.filter((t) => t.id === id)})),
+    deleteTask: (id) => set((state) => ({tasks: state.tasks.filter((t) => t.id === id)})),
   }
 ));
 
@@ -69,7 +71,7 @@ export const  useTaskIndex = create<taskStoreData>((set) => (
 
 
     ],
-    createTask: (task) => set((state) => ({tasks: state.tasks.concat([task])})),
-      deleteTask: (id) => set((state) => ({tasks: state.tasks.filter((t) => t.id === id)})),
+    createTask: (task) => set((state) => ({tasks: state.tasks.concat([{...task, id: state.tasks.length}])})),
+    deleteTask: (id) => set((state) => ({tasks: state.tasks.filter((t) => t.id === id)})),
   }
 ));

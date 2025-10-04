@@ -1,6 +1,6 @@
 import { useTaskIndex, useTaskTarget } from "@/lib/task/task";
 import {Link} from "expo-router";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, FlatList } from "react-native";
 
 export default function TaskPalette() {
   //this is the task index, which are the created tasks that you then use for the taskList
@@ -18,16 +18,18 @@ export default function TaskPalette() {
 
   return (
     <View>
-    {tasks.map((t) => (
-      <TouchableOpacity key={t.id} onPressOut={() => setTask(currTask)}>
-      <View style={[styles.circle, {backgroundColor: t.color}]}></View>
+    <FlatList 
+    data={tasks} 
+    renderItem={t => (
+      <TouchableOpacity key={t.item.id} onPressOut={() => setTask(t.item)}>
+      <View style={[styles.circle, {backgroundColor: t.item.color}]}></View>
       </TouchableOpacity>
-    ))}
-
-    <Link href={"/(tabs)/settings"}>
-    <View style={styles.circle}>
-    <Text>+</Text>
-    </View>
+    )}
+    />
+    <Link href={"/(modals)/tasks"}>
+      <View style={styles.circle}>
+        <Text>+</Text>
+      </View>
     </Link>
 
     </View>

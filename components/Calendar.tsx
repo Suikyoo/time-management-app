@@ -1,9 +1,11 @@
 import {getPage, month_names, day_names} from "@/lib/calendar/calendar";
-import {Task, useTaskList} from "@/lib/task/task";
-import { View, Text, StyleSheet } from "react-native";
+import {Task, useTaskList, useTaskTarget} from "@/lib/task/task";
+import {useEffect, useState} from "react";
+import { View, Text, StyleSheet, FlatList, TouchableOpacity } from "react-native";
 
 interface CalendarProp {
   date: Date;
+  active: boolean;
 }
 
 interface CalendarDayProp {
@@ -12,22 +14,54 @@ interface CalendarDayProp {
   active: boolean;
 
 }
+
 function CalendarDay({day, tasks, active}: CalendarDayProp) {
   return (
-    <View style={[styles.item, active ? {outlineWidth: 1} : {outlineWidth: 0}]}>
+    <>
 
-    {tasks.map((t) => (
-      <View style={[styles.tag, {backgroundColor: t.color}]} key={t.id}></View>
-    ))}
-
-    { active ? <Text style={{color: "#888888"}}>{day}</Text> : <Text>{day}</Text> }
-    </View>
+      <FlatList 
+      data={tasks} 
+      keyExtractor={t => t.id + (t.date ? t.date.getTime().toString() : "")} 
+      renderItem={i => (
+        <View style={[styles.tag, {backgroundColor: i.item.color}]} ></View>
+      )}
+      />
+      { active ? <Text style={{color: "#888888"}}>{day}</Text> : <Text>{day}</Text> }
+    </>
   )
 
 }
-export default function Calendar({date}: CalendarProp) {
+export default function Calendar({date, active}: CalendarProp) {
   const page = getPage(date);
-  const tasks = useTaskList(state => state.tasks);
+
+  const addTask = useTaskList(state => state.createTask);
+  const deleteTask = useTaskList(state => state.deleteTask);
+
+  const target = useTaskTarget(state => state.task);
+
+  const press = (tasks: Task[], newDate: Date) => {
+    if (!target) {
+      return
+    }
+    if (tasks.find(t => t.id === target.id)) {
+      console.log("del")
+      deleteTask(target.id);
+    }
+    else {
+      console.log("add")
+      addTask({...target, date: newDate})
+    }
+
+  }
+  const [proxyTaskList, setProxyTaskList] = useState<Task[]>([])
+
+  useEffect(() => {
+    if (active) {
+      const unsubscribe = useTaskList.subscribe((curr, _) => {setProxyTaskList(curr.tasks)});
+      return unsubscribe;
+    }
+  }, [active]);
+
   return (
     <View style={styles.container}>
     <View style={styles.nav}>
@@ -40,13 +74,20 @@ export default function Calendar({date}: CalendarProp) {
         <Text>{v.substring(0, 3)}</Text>
         </View>
       )
-                   )
+      )
     }
     {
       page.days.map((d, index) => {
-        const s = tasks.filter((t) => t.date?.getMonth() == page.month);
+        const new_date = new Date(date.getUTCFullYear(), date.getUTCMonth(), d);
+        const s = proxyTaskList.filter((t) => (new_date.toISOString().slice(10) === t.date?.toISOString().slice(10)));
         return (
-          <CalendarDay key={index} day={d} tasks={s} active={index >= page.offset} />
+          <TouchableOpacity 
+          style={[styles.item, index >= page.offset ? {outlineWidth: 1} : {outlineWidth: 0}]} 
+          onPress={() => press(s, new_date)}
+          key={index}
+          >
+            <CalendarDay day={d} tasks={s} active={index >= page.offset} />
+          </TouchableOpacity>
         )}
                    )
 

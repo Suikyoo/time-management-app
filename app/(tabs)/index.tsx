@@ -14,9 +14,7 @@ export default function Index() {
 
   const toggleScrollTimeout = useRef(0);
 
-  const getPreviousMonth = (date: Date): Date => {
-    return getDateAfter(date, -1 * Day * 30 + (getFinalDate(date) % 30) % 2);
-  }
+  const getPreviousMonth = (date: Date): Date => { return getDateAfter(date, -1 * Day * 30 + (getFinalDate(date) % 30) % 2); }
 
   const getNextMonth = (date: Date): Date => {
     return getDateAfter(date, Day * getFinalDate(date));
@@ -26,6 +24,7 @@ export default function Index() {
   const flatListRef = useRef<FlatList<Date>>(null);
 
   const viewabilityConfig: ViewabilityConfig = {minimumViewTime: 100, itemVisiblePercentThreshold: 90, waitForInteraction: true};
+
   const styles = StyleSheet.create({
     container: {
       boxSizing: "border-box",
@@ -45,7 +44,7 @@ export default function Index() {
         ref={flatListRef}
         data={viewData} 
         renderItem={item => (
-            <Calendar date={item.item}/> 
+            <Calendar date={item.item} active={item.index==1}/> 
             )}
         horizontal
         pagingEnabled
