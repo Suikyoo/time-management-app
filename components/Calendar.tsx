@@ -46,19 +46,20 @@ export default function Calendar({date, active}: CalendarProp) {
     if (!target) {
       return
     }
-    if (tasks.find(t => t.template_id === target.id)) {
-      await deleteTask(db, target.id);
+    const foundTask = tasks.find(t => t.template_id === target.id);
+    if (foundTask) {
+      await deleteTask(db, foundTask.id);
     }
     else {
       await addTask(db, {...target, date: newDate, template_id: target.id})
     }
 
   }
-  const [proxyTaskList, setProxyTaskList] = useState<Task[]>([])
+  const [proxyTaskList, setProxyTaskList] = useState<Task[]>(useTaskList(s => s.tasks))
 
   useEffect(() => {
     if (active) {
-      const unsubscribe = useTaskList.subscribe((curr, _) => {console.log(curr.tasks), setProxyTaskList(curr.tasks)});
+      const unsubscribe = useTaskList.subscribe((curr, _) => {console.log(curr.tasks, target), setProxyTaskList(curr.tasks)});
       return unsubscribe;
     }
   }, [active]);

@@ -12,6 +12,7 @@ async function migrateTaskList (db: SQLite.SQLiteDatabase) {
       CREATE TABLE IF NOT EXISTS task_list (
         id INTEGER PRIMARY KEY,
         date TEXT,
+        template_id INTEGER,
         FOREIGN KEY (template_id) REFERENCES task_index (id)
       );
       `
@@ -34,8 +35,7 @@ async function migrateTaskIndex (db: SQLite.SQLiteDatabase) {
       native BOOLEAN NOT NULL,
 
       timestamp TEXT,
-      duration INTEGER,
-
+      duration INTEGER
     );
     `
   )
@@ -44,9 +44,10 @@ async function migrateTaskIndex (db: SQLite.SQLiteDatabase) {
 
 export async function migrateDB(db: SQLite.SQLiteDatabase) {
 
-  await migrateTaskList(db);
 
   await migrateTaskIndex(db);
+
+  await migrateTaskList(db);
 
   console.log("migrate done")
 }
@@ -135,7 +136,7 @@ export async function addToTaskIndex(db: SQLite.SQLiteDatabase, task: TaskTempla
   const res = await db.runAsync(
     `
     INSERT INTO task_index (title, description, color, native, timestamp, duration) 
-    VALUES (?, ?, ?, ?, ?);
+    VALUES (?, ?, ?, ?, ?, ?);
     `, 
     [
       task.title, 
