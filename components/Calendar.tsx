@@ -1,4 +1,4 @@
-import {getPage, month_names, day_names} from "@/lib/calendar/calendar";
+import {getPage, month_names, day_names, dateIsEqual} from "@/lib/calendar/calendar";
 import {Task, useTaskList, useTaskTarget} from "@/lib/task/task";
 import {useSQLiteContext} from "expo-sqlite";
 import {useEffect, useState} from "react";
@@ -82,11 +82,7 @@ export default function Calendar({date, active}: CalendarProp) {
       page.days.map((d, index) => {
         const active = index >= page.offset;
         const new_date = new Date(date.getUTCFullYear(), date.getUTCMonth() - (active ? 0 : 1), d);
-        const s = proxyTaskList.filter((t) => {
-          const a = new_date.toISOString().slice(0, 10);
-          const b = t.date?.toISOString().slice(0, 10);
-          return a === b;
-        })
+        const s = proxyTaskList.filter((t) => dateIsEqual(new_date, t.date))
         return (
           <TouchableOpacity 
           style={[styles.item, index >= page.offset ? {outlineWidth: 1} : {outlineWidth: 0}]} 
