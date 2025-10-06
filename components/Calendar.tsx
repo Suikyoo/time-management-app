@@ -3,6 +3,8 @@ import {Task, useTaskList, useTaskTarget} from "@/lib/task/task";
 import {useSQLiteContext} from "expo-sqlite";
 import {useEffect, useState} from "react";
 import { View, Text, StyleSheet, FlatList, TouchableOpacity } from "react-native";
+import {ThemedText, ThemedView} from "./ThemedComponents";
+import {useColorScheme} from "nativewind";
 
 interface CalendarProp {
   date: Date;
@@ -17,19 +19,22 @@ interface CalendarDayProp {
 }
 
 function CalendarDay({day, tasks, active}: CalendarDayProp) {
+  const {colorScheme} = useColorScheme();
   return (
-    <>
-
+    <ThemedView
+    className="flex flex-col items-center w-full h-full text-center rounded-sm"
+    style={{outlineColor: colorScheme === "dark" ? "white" : "black", outlineWidth: 1, opacity: active ? 1 : 0.3}} 
+    >
       <FlatList 
       data={tasks} 
       keyExtractor={t => t.id.toString()} 
       renderItem={i => (
-        <View style={[styles.tag, {backgroundColor: i.item.color}]} ></View>
+        <ThemedView className="w-2 h-2 rounded-full" style={{backgroundColor: i.item.color}} >
+        </ThemedView>
       )}
       />
-      { active ? <Text style={{color: "#888888"}}>{day}</Text> : <Text>{day}</Text> }
-    </>
-  )
+      <ThemedText>{day}</ThemedText>
+    </ThemedView>)
 
 }
 export default function Calendar({date, active}: CalendarProp) {
@@ -43,6 +48,7 @@ export default function Calendar({date, active}: CalendarProp) {
   const target = useTaskTarget(state => state.task);
 
   const press = async(tasks: Task[], newDate: Date) => {
+    console.log(newDate);
     if (!target) {
       return
     }
@@ -59,105 +65,40 @@ export default function Calendar({date, active}: CalendarProp) {
 
   useEffect(() => {
     if (active) {
-      const unsubscribe = useTaskList.subscribe((curr, _) => {console.log(curr.tasks, target), setProxyTaskList(curr.tasks)});
+      const unsubscribe = useTaskList.subscribe((curr, _) => {; setProxyTaskList(curr.tasks)});
       return unsubscribe;
     }
   }, [active]);
 
   return (
-    <View style={styles.container}>
-    <View style={styles.nav}>
-    <Text>{month_names[page.month]}</Text>
-    </View>
-    <View style={styles.calendar}>
-    {
-      day_names.map((v, index) => (
-        <View key={index} style={styles.header}>
-        <Text>{v.substring(0, 3)}</Text>
-        </View>
-      )
-      )
-    }
-    {
-      page.days.map((d, index) => {
-        const active = index >= page.offset;
-        const new_date = new Date(date.getUTCFullYear(), date.getUTCMonth() - (active ? 0 : 1), d);
-        const s = proxyTaskList.filter((t) => dateIsEqual(new_date, t.date))
-        return (
-          <TouchableOpacity 
-          style={[styles.item, index >= page.offset ? {outlineWidth: 1} : {outlineWidth: 0}]} 
-          onPress={() => press(s, new_date)}
-          key={index}
-          >
-            <CalendarDay day={d} tasks={s} active={active} />
-          </TouchableOpacity>
-        )}
-                   )
-
-    }
-    </View>
-    </View>
+    <ThemedView className="grow w-[33.33%] justify-start items-center box-border p-2">
+      <ThemedView className="flex-row items-center justify-center">
+        <ThemedText>{month_names[page.month]}</ThemedText>
+      </ThemedView>
+      <ThemedView className="flex flex-row flex-wrap items-center w-full">
+      {
+        day_names.map((v, index) => (
+          <ThemedView key={index} className="flex bold justify-center items-center w-[14.27%]">
+          <ThemedText>{v.substring(0, 3)}</ThemedText>
+          </ThemedView>
+        ))
+      }
+      {
+        page.days.map((d, index) => {
+          const active = index >= page.offset;
+          const new_date = new Date(date.getUTCFullYear(), date.getUTCMonth() - (active ? 0 : 1), d, 12);
+          const s = proxyTaskList.filter((t) => dateIsEqual(new_date, t.date))
+          return (
+            <TouchableOpacity 
+            onPress={() => {press(s, new_date); console.log(d)}}
+            key={index}
+            className="text-center flex justify-center w-[14.27%] h-[50px] box-border p-1"
+            >
+              <CalendarDay day={d} tasks={s} active={active} />
+            </TouchableOpacity>
+          )})
+      }
+      </ThemedView>
+    </ThemedView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flexGrow: 1,
-    width: `${100/3}%`,
-    justifyContent: "flex-start",
-    alignItems: "center",
-
-  },
-  calendar: {
-    width: "100%",
-    display: "flex",
-    flexWrap: "wrap",
-    flexDirection: "row",
-    alignItems: "center",
-
-  },
-  item: {
-    textAlign: "center",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    width: `${100/7}%`,
-    height: 50,
-    outlineWidth: 1,
-    outlineOffset: -2,
-    outlineColor: "#cccccc",
-    borderRadius: 5, 
-    boxSizing: "border-box",
-    padding: 2,
-
-  },
-
-  header: {
-    display: "flex",
-    fontWeight: 800,
-    fontSize: 200,
-    justifyContent: "center",
-    alignItems: "center",
-    width: `${100/7}%`,
-    height: 30,
-    boxSizing: "border-box",
-    padding: 2,
-  },
-
-  nav: {
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  tag: {
-    width: 20,
-    height: 20,
-    borderRadius: 20,
-
-  }
-
-});
-
-

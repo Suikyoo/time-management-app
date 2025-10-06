@@ -1,5 +1,5 @@
-import Input from "@/components/Input";
 import TaskCard from "@/components/TaskCard";
+import {ThemedInput, ThemedText, ThemedView} from "@/components/ThemedComponents";
 import {colors} from "@/lib/color/color";
 import {Task, TaskTemplate, useTaskIndex, useTaskList, useTaskTarget} from "@/lib/task/task";
 import {useSQLiteContext} from "expo-sqlite";
@@ -29,37 +29,47 @@ export default function Index() {
     }
 
     await addTask(db, task);
+    setTask({title: "", description: "", color: "", native: true, id: -1})
   }
 
   return (
-    <View className="text-white dark:bg-slate-900">
-      <FlatList data={tasks} keyExtractor={t => t.id.toString()} renderItem={t => <TaskCard task={t.item}/>}/>
-      <View className="p-5 dark:text-white bg-slate-900 box-border">
-        <Text>title: </Text>
-        <Input onChangeText={(s) => setTask({...task, title: s})}/>
-        <Text>description:</Text>
-        <Input onChangeText={(s) => setTask({...task, description: s})}/>
+    <ScrollView showsVerticalScrollIndicator={false}>
+      <ThemedView className="p-5 box-border bg-zinc-100 dark:bg-zinc-950" inherited="text-black dark:text-white">
+        <ThemedView>
+        {
+          tasks.map(t => (
+            <TaskCard task={t} key={t.id.toString()} className="w-full p-5 my-5 rounded-xl box-border bg-zinc-950 dark:bg-zinc-800"/>
+          ))
+        }
+        </ThemedView>
 
-        <ScrollView horizontal className="flex-1 h-5">
-          <View className="flex-row flex-1 h-1">
-            {
-              colors.map((c, index) => (
-              <TouchableOpacity 
-              onPressOut={() => setTask({...task, color: c})}
-              key={index.toString()}
-              >
-                <View className="w-10 h-10 m-2 rounded-full" style={{backgroundColor: c}}>
-                </View>
-              </TouchableOpacity>
-              ))
-            }
-          </View>
-        </ScrollView>
+        <ThemedView className="flex flex-col justify-start p-5 bg-zinc-950 dark:bg-zinc-800 box-border rounded-xl">
+          <ThemedText>title: </ThemedText>
+          <ThemedInput onChangeText={(s) => setTask({...task, title: s})}/>
+          <ThemedText>description: </ThemedText>
+          <ThemedInput onChangeText={(s) => setTask({...task, description: s})}/>
 
-        <Text>{status}</Text>
-        <Button title="submit" onPress={submit}/>
-      </View>
-    </View>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            <ThemedView className="flex-row flex-1 py-2 my-2">
+              {
+                colors.map((c, index) => (
+                <TouchableOpacity 
+                onPressOut={() => setTask({...task, color: c})}
+                key={index.toString()}
+                >
+                  <ThemedView className="w-6 h-6 m-2 border-2 border-white rounded-full" style={{backgroundColor: c}}>
+                  </ThemedView>
+                </TouchableOpacity>
+                ))
+              }
+            </ThemedView>
+          </ScrollView>
+
+          <Text>{status}</Text>
+          <Button title="submit" onPress={submit}/>
+        </ThemedView>
+      </ThemedView>
+    </ScrollView>
   );
 
 }

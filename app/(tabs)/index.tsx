@@ -1,11 +1,14 @@
 import {getDateAfter, getFinalDate} from "@/lib/calendar/calendar";
 import { Day } from "@/lib/time/time";
 import {useEffect, useRef, useState} from "react";
-import { View, Text, StyleSheet, Button, FlatList, ViewabilityConfig, ViewToken } from "react-native";
+import { FlatList, ScrollView, ViewabilityConfig, ViewToken } from "react-native";
 
+import DayView from "@/components/DayView";
 import Calendar from "@/components/Calendar";
 import TaskPalette from "@/components/TaskPalette";
 import {useColorScheme} from "nativewind";
+import {ThemedView} from "@/components/ThemedComponents";
+import {styles} from "@/lib/style/style";
 
 export default function Index() {
   const [date, setDate] = useState(new Date());
@@ -53,31 +56,36 @@ export default function Index() {
   }
 
   return (
-    <View className="p-[20px] box-border dark:bg-zinc-950 h-screen">
-      <FlatList 
-      ref={flatListRef}
-      data={viewData} 
-      renderItem={item => (
-        <Calendar date={item.item} active={item.index==1}/> 
-      )}
-      horizontal
-      pagingEnabled
-      initialScrollIndex={1}
-      scrollEnabled={calendarScroll}
-      getItemLayout={(_, index) => ({length: calendarWidth, offset: calendarWidth * index, index})}
-      onLayout={(e) => {
-        e.currentTarget.measure((_, __, width) => {setCalendarWidth(width)})
-      }}
-      className="w-full"
-      keyExtractor={(item) => item.getFullYear().toString() + "-" + item.getMonth().toString()}
-      contentContainerStyle={{width: "300%"}}
-      disableIntervalMomentum
-      onViewableItemsChanged={paginate}
-      viewabilityConfig={viewabilityConfig}
-      />
+    <ScrollView>
+      <ThemedView className="flex-1 flex-col justify-start p-[20px] box-border bg-zinc-100 dark:bg-zinc-800 h-screen">
+        
+        <DayView date={date} className="my-5 bg-white rounded-lg dark:bg-zinc-700" style={styles.shadow}/>
+        <ThemedView className="overflow-y-hidden h-[380px] bg-white rounded-lg dark:bg-zinc-700" style={styles.shadow}>
+          <FlatList 
+          ref={flatListRef}
+          data={viewData} 
+          renderItem={item => (
+            <Calendar date={item.item} active={item.index==1}/> 
+          )}
+          horizontal
+          pagingEnabled
+          initialScrollIndex={1}
+          scrollEnabled={calendarScroll}
+          getItemLayout={(_, index) => ({length: calendarWidth, offset: calendarWidth * index, index})}
+          onLayout={(e) => {
+            e.currentTarget.measure((_, __, width) => {setCalendarWidth(width)})
+          }}
+          keyExtractor={(item) => item.getFullYear().toString() + "-" + item.getMonth().toString()}
+          contentContainerStyle={{width: "300%"}}
+          disableIntervalMomentum
+          onViewableItemsChanged={paginate}
+          viewabilityConfig={viewabilityConfig}
+          showsHorizontalScrollIndicator={false}
+          />
+        </ThemedView>
 
-      <TaskPalette/>
-    </View>
-
+        <TaskPalette className="w-full my-5 bg-white rounded-lg dark:bg-zinc-700"/>
+      </ThemedView>
+    </ScrollView>
       );
 }
