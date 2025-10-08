@@ -16,15 +16,16 @@ export default function TaskCard({task, className}: Props) {
       deleteTask(db, task.id);
     }
   }
+  const defaultStyle = "box-border px-7"
   return (
-    <ThemedView className={className || ""} style={{borderWidth: 5, borderRightColor: task.color}}>
+    <ThemedView className={`${defaultStyle} ${className || ""}`} style={{outlineWidth: 0.6, outlineOffset: -6, outlineColor: task.color}}>
       <ThemedText>{task.title}</ThemedText>
       <ThemedText>{task.description}</ThemedText>
       {
         task.timestamp && task.duration ? <Text>{timeStampToString(task.timestamp)}-{timeStampToString(timeStampAfter(task.timestamp, task.duration))}</Text>: <Text></Text>
       }
       
-      <Button title="delete" onPress={press} />
+      <Button title="X" onPress={press} />
       
 
     </ThemedView>

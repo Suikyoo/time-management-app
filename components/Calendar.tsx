@@ -20,21 +20,29 @@ interface CalendarDayProp {
 
 function CalendarDay({day, tasks, active}: CalendarDayProp) {
   const {colorScheme} = useColorScheme();
+  
   return (
     <ThemedView
     className="flex flex-col items-center w-full h-full text-center rounded-sm"
-    style={{outlineColor: colorScheme === "dark" ? "white" : "black", outlineWidth: 1, opacity: active ? 1 : 0.3}} 
+    style={{
+      outlineColor: colorScheme === "dark" ? "white" : "black", 
+      outlineWidth: 1, 
+      opacity: active ? 1 : 0.3,
+      backgroundColor: tasks.length ? "#444" : undefined,
+    }} 
     >
-      <FlatList 
-      data={tasks} 
-      keyExtractor={t => t.id.toString()} 
-      renderItem={i => (
-        <ThemedView className="w-2 h-2 rounded-full" style={{backgroundColor: i.item.color}} >
+    <ThemedView className="flex flex-row self-start justify-start mx-2 my-1">
+    {
+      tasks.slice(0, 2).map(t => (
+        <ThemedView key={t.id.toString()} className="w-2 h-2 rounded-full" style={{backgroundColor: t.color}} >
         </ThemedView>
-      )}
-      />
+      ))
+    }
+    </ThemedView>
+      
       <ThemedText>{day}</ThemedText>
-    </ThemedView>)
+    </ThemedView>
+  )
 
 }
 export default function Calendar({date, active}: CalendarProp) {

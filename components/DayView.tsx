@@ -13,27 +13,26 @@ interface Props extends ViewProps{
 export default function DayView({date, className, ...props}: Props) {
   const {colorScheme} = useColorScheme();
   const tasks = useTaskList(s => s.tasks).filter(t => dateIsEqual(t.date, date))
-  const defaultStyle = "flex flex-row justify-stretch"
+  const defaultStyle = "flex flex-row justify-between"
   return (
     <ThemedView className={`${defaultStyle} ${className || ""}`} {...props}>
 
-    <ThemedView className="grow-3 aspect-square w-[60%] box-border p-5">
       <ThemedView 
-      className="items-center justify-start w-full h-full bg-zinc-100 dark:bg-zinc-600 rounded-2xl" 
+      className="flex items-center justify-center w-3/5 rounded-lg bg-zinc-100 dark:bg-zinc-800 aspect-square" 
       style={styles.shadow}
       >
-        <ThemedText className="text-xl italic grow-1">{`${month_names[date.getMonth()]} ${date.getFullYear()}`}</ThemedText>
+        <ThemedText className="absolute text-sm italic top-2 grow-1">{`${month_names[date.getMonth()]} ${date.getFullYear()}`}</ThemedText>
 
-        <ThemedView className="flex items-center justify-center h-[60%] rounded-2xl border-4 border-white aspect-square">
-          <ThemedText className="text-5xl font-bold ">{date.getDate()}</ThemedText>
+        <ThemedView className="flex items-center justify-center my-3 bg-white rounded-3xl aspect-square">
+          <ThemedText className="font-bold text-zinc-900 text-9xl">{date.getDate()}</ThemedText>
         </ThemedView>
       </ThemedView>
-    </ThemedView>
 
-    <ThemedView className="h-full p-5 grow-3 box-border">
+    <ThemedView className="w-1/3 h-full my-2 grow-3">
+    <ThemedText className="p-0 m-0">Tasks:</ThemedText>
     {
       tasks.map(t => (
-        <ThemedView className="px-5 my-1 rounded-full" style={[styles.shadow, {backgroundColor: t.color}]}>
+        <ThemedView className="ppx-4 my-2 text-xs rounded-full style={[styles.shadow, {backgroundColor: t.color}]}>
         <ThemedText>{t.title}</ThemedText>
         </ThemedView>
       ))
