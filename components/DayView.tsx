@@ -18,7 +18,7 @@ export default function DayView({date, className, ...props}: Props) {
     <ThemedView className={`${defaultStyle} ${className || ""}`} {...props}>
 
       <ThemedView 
-      className="flex items-center justify-center w-3/5 rounded-lg bg-zinc-100 dark:bg-zinc-800 aspect-square" 
+      className="flex items-center justify-center w-2/3 rounded-lg bg-zinc-100 dark:bg-zinc-800 aspect-square" 
       style={styles.shadow}
       >
         <ThemedText className="absolute text-sm italic top-2 grow-1">{`${month_names[date.getMonth()]} ${date.getFullYear()}`}</ThemedText>
@@ -28,11 +28,11 @@ export default function DayView({date, className, ...props}: Props) {
         </ThemedView>
       </ThemedView>
 
-    <ThemedView className="w-1/3 h-full my-2 grow-3">
+    <ThemedView className="flex flex-col items-center justify-start w-1/3 h-full my-2 grow-3">
     <ThemedText className="p-0 m-0">Tasks:</ThemedText>
     {
       tasks.map(t => (
-        <ThemedView className="ppx-4 my-2 text-xs rounded-full style={[styles.shadow, {backgroundColor: t.color}]}>
+        <ThemedView key={t.id.toString()} className="px-4 my-2 text-xs rounded-full" style={[styles.shadow, {backgroundColor: t.color}]}>
         <ThemedText>{t.title}</ThemedText>
         </ThemedView>
       ))

@@ -60,7 +60,7 @@ export default function Index() {
       <ScrollView showsVerticalScrollIndicator={false}>
         <ThemedView className="flex-1 flex-col justify-start p-[20px] box-border h-[120vh]">
 
-        <DayView date={date} className="p-4 bg-white rounded-lg my-safe dark:bg-zinc-900 box-border" style={styles.shadow}/>
+        <DayView date={date} className="p-2 bg-white rounded-lg my-safe dark:bg-zinc-900 box-border" style={styles.shadow}/>
         <ThemedView className="overflow-y-hidden h-[380px] bg-white rounded-lg dark:bg-zinc-900" style={styles.shadow}>
           <FlatList 
           ref={flatListRef}
