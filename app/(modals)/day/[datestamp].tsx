@@ -2,11 +2,9 @@ import {useTaskList} from "@/lib/task/task";
 import {useLocalSearchParams} from "expo-router";
 import {View, Text, StyleSheet} from "react-native";
 
-
-
 export default function DayModal() {
-  const {timestamp} = useLocalSearchParams<{timestamp: string}>();
-  const date = new Date(timestamp);
+  const {datestamp} = useLocalSearchParams<{datestamp: string}>();
+  const date = new Date(datestamp);
   const styles = StyleSheet.create({
     container: {
       display: "flex",

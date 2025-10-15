@@ -98,7 +98,8 @@ export default function Calendar({date, active}: CalendarProp) {
           const s = proxyTaskList.filter((t) => dateIsEqual(new_date, t.date))
           return (
             <TouchableOpacity 
-            onPress={() => {press(s, new_date); console.log(d)}}
+            onPress={() => press(s, new_date)}
+            onLongPress={() => {}}
             key={index}
             className="text-center flex justify-center w-[14.27%] h-[50px] box-border p-1"
             >

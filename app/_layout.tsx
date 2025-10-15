@@ -12,11 +12,7 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <SQLiteProvider databaseName="main.db" onInit={migrateDB}>
-        <Stack>
-          <Stack.Screen name="(tabs)" options={{headerShown: false}}/>
-          <Stack.Screen name="(modals)/day/[datestamp]" options={pageModal}/>
-          <Stack.Screen name="(modals)/tasks/index" options={{headerShown: false}}/>
-        </Stack>
+        <Stack screenOptions={{headerShown: false}} />
       </SQLiteProvider>
     </SafeAreaProvider>
       );

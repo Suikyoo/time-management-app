@@ -21,9 +21,9 @@ export default function DayView({date, className, ...props}: Props) {
       className="flex items-center justify-center w-2/3 rounded-lg bg-zinc-100 dark:bg-zinc-800 aspect-square" 
       style={styles.shadow}
       >
-        <ThemedText className="absolute text-sm italic top-2 grow-1">{`${month_names[date.getMonth()]} ${date.getFullYear()}`}</ThemedText>
+        <ThemedText className="absolute text-sm italic top-0 grow-1">{`${month_names[date.getMonth()]} ${date.getFullYear()}`}</ThemedText>
 
-        <ThemedView className="flex items-center justify-center my-3 bg-white rounded-3xl aspect-square">
+        <ThemedView className="flex items-center justify-center my-3 bg-white rounded-3xl aspect-square p-6">
           <ThemedText className="font-bold text-zinc-900 text-9xl">{date.getDate()}</ThemedText>
         </ThemedView>
       </ThemedView>
