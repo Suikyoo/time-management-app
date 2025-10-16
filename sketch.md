@@ -9,3 +9,12 @@
 
 - Week View Tab
 
+# Plan
+
+## Tasks
+- /tasks/[timestamp] : list/add tasks (from template or orginal)
+
+## Templates
+- /templates : list/add templates + select (extra)
+
+## to achieve this, add a specific input/text/button styling context that they can inherit aside from the "inherit" 
