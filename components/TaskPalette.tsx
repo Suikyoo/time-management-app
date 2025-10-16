@@ -30,7 +30,7 @@ export default function TaskPalette({className}: Props) {
         </ThemedView>
       </ScrollView>
 
-      <Link href={"/(modals)/tasks"}>
+      <Link href={"/tasks/template"}>
         <ThemedView className="flex flex-row items-start justify-center w-10 h-10 border-2 border-black rounded-lg dark:bg-white">
           <ThemedText className="text-xl text-center text-white dark:text-black">+</ThemedText>
         </ThemedView>
