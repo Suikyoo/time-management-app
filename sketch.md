@@ -1,20 +1,13 @@
 # Todo
 
-- General Styling
-## visible color selection 
-- Modal w/ Day View Component ( on hold per date)
-- List Component w/ Sliding Day View Components (component of home)
-- Button Styling
 
+## visible color selection 
+## Button Styling
+- General Styling
+- Modal w/ Day View Component ( on hold per date)
+- Figure out how to input time for templates
+
+### (I'm satisfied with the program at this point)
 
 - Week View Tab
 
-# Plan
-
-## Tasks
-- /tasks/[timestamp] : list/add tasks (from template or orginal)
-
-## Templates
-- /templates : list/add templates + select (extra)
-
-## to achieve this, add a specific input/text/button styling context that they can inherit aside from the "inherit" 

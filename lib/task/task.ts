@@ -9,10 +9,11 @@ export interface TaskTemplate {
   color: ColorValue;
   title: string;
   description: string;
-  native: boolean;
 
-  timestamp?: TimeStamp,
-  duration?: Duration,
+  timestamp?: TimeStamp;
+  duration?: Duration;
+
+  native: Boolean;
 
 }
 
@@ -51,7 +52,7 @@ export const useTaskList = create<taskStoreData<Task>>((set) => (
       const data = await getTaskList(db);
       set(() => ({tasks: data}))
     },
-    createTask: async (db, task) => {
+    createTask: async (db, {...task}) => {
       const id = await addToTaskList(db, task);
       set((state) => ({tasks: state.tasks.concat([{...task, id}])}));
     },
@@ -70,7 +71,7 @@ export const  useTaskIndex = create<taskStoreData<TaskTemplate>>((set) => (
       const data = await getTaskIndex(db);
       set(() => ({tasks: data}))
     },
-    createTask: async (db, task) => {
+    createTask: async (db, {...task}) => {
       const id = await addToTaskIndex(db, task)
       set((state) => ({tasks: state.tasks.concat([{...task, id}])}));
     },

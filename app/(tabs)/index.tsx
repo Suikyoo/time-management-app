@@ -56,7 +56,7 @@ export default function Index() {
   }
 
   return (
-    <ThemedView className="h-screen bg-zinc-100 dark:bg-zinc-950">
+    <ThemedView className="h-screen bg-zinc-100 dark:bg-zinc-950" reset>
       <ScrollView showsVerticalScrollIndicator={false}>
         <ThemedView className="flex-1 flex-col justify-start p-[20px] box-border h-[120vh]">
 

@@ -11,7 +11,8 @@ export default function RootLayout() {
       <SQLiteProvider databaseName="main.db" onInit={migrateDB}>
         <Stack screenOptions={{headerShown: false}}>
           <Stack.Screen name="(tabs)"/>
-          <Stack.Screen name="tasks/template" options={{presentation: "transparentModal"}}/>
+          <Stack.Screen name="tasks/template" options={{presentation: "card"}}/>
+          <Stack.Screen name="tasks/[datestamp]" options={{presentation: "card"}}/>
         </Stack>
       </SQLiteProvider>
     </SafeAreaProvider>

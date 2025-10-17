@@ -79,5 +79,5 @@ export function getDateAfter(date: Date, ms: number): Date {
 }
 //compares only the date part yyyy/mm/dd and not the time
 export function dateIsEqual(date: Date, other_date: Date): boolean {
-  return date.toISOString().slice(0, 10) == other_date.toISOString().slice(0, 10)
+  return date.toString().slice(0, 15) == other_date.toString().slice(0, 15)
 }

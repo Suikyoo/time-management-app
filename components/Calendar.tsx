@@ -23,6 +23,7 @@ function CalendarDay({day, tasks, active}: CalendarDayProp) {
   
   return (
     <ThemedView
+    reset
     className="flex flex-col items-center w-full h-full text-center rounded-sm"
     style={{
       outlineColor: colorScheme === "dark" ? "white" : "black", 
@@ -56,15 +57,16 @@ export default function Calendar({date, active}: CalendarProp) {
   const target = useTaskTarget(state => state.task);
 
   const press = async(tasks: Task[], newDate: Date) => {
-    console.log(newDate);
     if (!target) {
       return
     }
+
     const foundTask = tasks.find(t => t.template_id === target.id);
     if (foundTask) {
       await deleteTask(db, foundTask.id);
     }
     else {
+      console.log(date, newDate)
       await addTask(db, {...target, date: newDate, template_id: target.id})
     }
 

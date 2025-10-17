@@ -32,10 +32,9 @@ async function migrateTaskIndex (db: SQLite.SQLiteDatabase) {
       color TEXT NOT NULL,
       title TEXT NOT NULL,
       description TEXT NOT NULL,
-      native BOOLEAN NOT NULL,
-
       timestamp TEXT,
-      duration INTEGER
+      duration INTEGER,
+      native BOOLEAN
     );
     `
   )
@@ -49,7 +48,6 @@ export async function migrateDB(db: SQLite.SQLiteDatabase) {
 
   await migrateTaskList(db);
 
-  console.log("migrate done")
 }
 
 export async function getTaskList(db: SQLite.SQLiteDatabase): Promise<Task[]> {
@@ -58,7 +56,7 @@ export async function getTaskList(db: SQLite.SQLiteDatabase): Promise<Task[]> {
     `
     SELECT * 
     FROM task_list 
-    INNER JOIN task_index ON task_list.template_id = task_index.id
+    INNER JOIN task_index ON task_list.template_id = task_index.id;
     `
   );
 
@@ -70,8 +68,8 @@ export async function getTaskList(db: SQLite.SQLiteDatabase): Promise<Task[]> {
     date: (i.date && new Date(i.date)) || undefined,
     timestamp: (i.timestamp && getTimeStampfromString(i.timestamp)) || undefined,
     duration: i.duration || undefined,
+    native: Boolean(i.native),
     template_id: i.index_id,
-    native: i.native,
   }));
   
 }
@@ -83,11 +81,10 @@ export async function addToTaskList(db: SQLite.SQLiteDatabase, task: Task): Prom
     VALUES (?, ?);
     `, 
     [
-      (task.date && task.date.toISOString()) || null,
+      (task.date && task.date.toString()) || null,
       task.template_id,
     ] 
   );
-  console.log("add task list")
   return res.lastInsertRowId;
 }
 export async function deleteFromTaskList(db: SQLite.SQLiteDatabase, id: number): Promise<void> {
@@ -104,7 +101,6 @@ export async function deleteFromTaskList(db: SQLite.SQLiteDatabase, id: number):
   catch (e) {
     throw e;
   }
-  console.log("delete task list");
 }
 
 export async function getTaskIndex(db: SQLite.SQLiteDatabase): Promise<TaskTemplate[]> {
@@ -112,20 +108,19 @@ export async function getTaskIndex(db: SQLite.SQLiteDatabase): Promise<TaskTempl
   const res = await db.getAllAsync<any>(
     `
     SELECT * 
-    FROM task_index 
+    FROM task_index;
     `
   );
-  console.log("task index")
 
-  return res.map((i) => ({
+  return res.map<TaskTemplate>((i) => ({
     id: i.id,
     color: i.color,
     title: i.title,
     description: i.description,
-    native: i.native,
 
     timestamp: (i.timestamp && getTimeStampfromString(i.timestamp)) || undefined,
     duration: i.duration || undefined,
+    native: Boolean(i.native),
   }));
  
   
@@ -135,19 +130,18 @@ export async function addToTaskIndex(db: SQLite.SQLiteDatabase, task: TaskTempla
 
   const res = await db.runAsync(
     `
-    INSERT INTO task_index (title, description, color, native, timestamp, duration) 
+    INSERT INTO task_index (title, description, color, timestamp, duration, native) 
     VALUES (?, ?, ?, ?, ?, ?);
     `, 
     [
       task.title, 
       task.description, 
       task.color.toString(), 
-      task.native,
       (task.timestamp && timeStampToString(task.timestamp)) || null,
       task.duration || null,
+      task.native ? 1 : 0,
     ]
   );
-  console.log(" add task index")
   return res.lastInsertRowId;
 }
 
@@ -166,5 +160,4 @@ export async function deleteFromTaskIndex(db: SQLite.SQLiteDatabase, id: number)
   catch (e) {
     throw e;
   }
-  console.log(" delete task index")
 }

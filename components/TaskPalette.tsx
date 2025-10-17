@@ -1,7 +1,7 @@
 import { TaskTemplate, useTaskIndex, useTaskTarget } from "@/lib/task/task";
-import {Link} from "expo-router";
+import {Link, router} from "expo-router";
 import { View, Text, StyleSheet, TouchableOpacity, FlatList, ScrollView } from "react-native";
-import {ThemedText, ThemedView} from "./ThemedComponents";
+import {ThemedButton, ThemedText, ThemedView} from "./ThemedComponents";
 import {styles} from "@/lib/style/style";
 import {useColorScheme} from "nativewind";
 import { useRef, useState } from "react";
@@ -17,7 +17,7 @@ export default function TaskPalette({className}: Props) {
   const [taskProxy, setTaskProxy] = useState<TaskTemplate | null>( useTaskTarget(state => state.task))
   const defaultStyle = "flex flex-row justify-start items-center box-border p-2"
   return (
-    <ThemedView className={`${defaultStyle} ${className || ""}`} style={styles.shadow}>
+    <ThemedView reset className={`${defaultStyle} ${className || ""}`} style={styles.shadow}>
       <ScrollView horizontal>
         <ThemedView className="flex flex-row">
         {
@@ -30,11 +30,9 @@ export default function TaskPalette({className}: Props) {
         </ThemedView>
       </ScrollView>
 
-      <Link href={"/tasks/template"}>
-        <ThemedView className="flex flex-row items-start justify-center w-10 h-10 border-2 border-black rounded-lg dark:bg-white">
-          <ThemedText className="text-xl text-center text-white dark:text-black">+</ThemedText>
-        </ThemedView>
-      </Link>
+      <ThemedButton onPressOut={() => router.push("/tasks/template")} className="w-10 aspect-square">
+        <ThemedText>+</ThemedText>
+      </ThemedButton>
 
     </ThemedView>
   )
