@@ -1,11 +1,14 @@
 # Todo
 
-
 ## visible color selection 
+
 ## Button Styling
+
+## Figure out how to input time for templates
+
 - General Styling
 - Modal w/ Day View Component ( on hold per date)
-- Figure out how to input time for templates
+- Create form needs to be component-ized
 
 ### (I'm satisfied with the program at this point)
 

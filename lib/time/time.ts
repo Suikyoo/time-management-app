@@ -65,7 +65,7 @@ export function getTimeStampfromString(s: string): TimeStamp {
 export function getTimeStamp(d: Duration): TimeStamp {
   const t: TimeStamp = {hours: 0, minutes: 0, mod: null}
   t.hours = Math.floor(d / Hour);
-  t.minutes = d % Hour;
+  t.minutes = Math.floor((d % Hour) / Minute);
   return getStandard(t);
 
 }
@@ -82,7 +82,22 @@ export function timeStampAfter(t: TimeStamp, d: Duration): TimeStamp {
 
 export function timeStampToString(t: TimeStamp): string {
   if (t.mod !== null) {
-    return `${t.hours}:${t.minutes} ${t.mod ? "PM" : "AM"}`;
+    console.log(t.hours, t.minutes);
+    return `${t.hours}:${Math.floor(t.minutes).toString().padStart(2, "0")} ${t.mod ? "PM" : "AM"}`;
   }
   return `${t.hours}:${t.minutes}`;
+}
+export function durationToString(d: Duration): string {
+  if (d >= Day) {
+    const value = Math.floor(d / Day);
+    return `${value} Day${value > 1 ? "s" : ""}`
+  }
+  else if (d >= Hour) {
+    const value = Math.floor(d / Hour);
+    return `${value} Hour${value > 1 ? "s" : ""}`
+  }
+
+  const value = Math.floor(d / Minute);
+  return `${value} Minute${value > 1 ? "s" : ""}`
+
 }

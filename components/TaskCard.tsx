@@ -24,8 +24,14 @@ export default function TaskCard({task, className, deletable, opaque}: Props) {
       <ThemedView textInherit={opaque ? "!text-black dark:!text-black" : ""}>
         <ThemedText>{task.title}</ThemedText>
         <ThemedText>{task.description}</ThemedText>
-        <ThemedText style={{display: task.timestamp && task.duration ? "contents" : "none"}}>
-          {task.timestamp && task.duration ? `${timeStampToString(task.timestamp)} - ${timeStampToString(timeStampAfter(task?.timestamp, task.duration))}` : ""}
+        <ThemedText>
+          {
+            task.timestamp ? (
+              `${timeStampToString(task.timestamp)}` + " - " + 
+                (task.duration ? 
+                 `${timeStampToString(timeStampAfter(task.timestamp!, task.duration))}` : "" )
+            ) : ''
+          }
         </ThemedText>
 
       </ThemedView>
