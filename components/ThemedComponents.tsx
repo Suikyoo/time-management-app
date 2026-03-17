@@ -45,7 +45,7 @@ export function ThemedText({className = "", children, ...props}: TextProps) {
 
   const {colorScheme} = useColorScheme();
 
-  const defaultStyle = `pt-3 pb-2 text-black dark:text-white`;
+  const defaultStyle = `pt-3 pb-2 text-black dark:text-white font-2xl`;
 
   return (
     <Text {...props} className={`${defaultStyle} ${ctx.allInherit} ${ctx.textInherit} ${className}`}>

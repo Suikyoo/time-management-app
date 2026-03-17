@@ -22,9 +22,14 @@ export default function TabLayout() {
         }}/>
 
         <Tabs.Screen 
-        name="settings" 
+        name="week" 
         options={{
-          title: "Settings", headerShown: false
+          title: "Week View", 
+          headerShown: false,
+          tabBarStyle: {
+            backgroundColor: colorScheme === "dark" ?  nativeWindConfig.theme.colors.zinc[950] : nativeWindConfig.theme.colors.zinc[100],
+          },
+
         }}/>
 
       </Tabs>

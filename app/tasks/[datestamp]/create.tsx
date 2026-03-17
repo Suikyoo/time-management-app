@@ -1,78 +1,107 @@
 import { ThemedView, ThemedText, ThemedInput, ThemedButton } from "@/components/ThemedComponents";
 import { colors } from "@/lib/color/color";
-import { TaskTemplate, useTaskIndex } from "@/lib/task/task";
+import { TaskTemplate, useTaskList, useTaskTemplates } from "@/lib/task/task";
 import { router, useLocalSearchParams } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
 import { useColorScheme } from "nativewind";
-import { useRef, useState } from "react";
-import { Pressable, ScrollView, TouchableOpacity } from "react-native";
-import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import { useEffect, useState } from "react";
+import { Keyboard, Pressable, ScrollView, Switch, TouchableOpacity } from "react-native";
+import DateTimePicker from "@react-native-community/datetimepicker";
+import {durationToString, getDuration, getTimeStamp, TimeStamp} from "@/lib/time/time";
 
 export default function Create() {
   const {datestamp} = useLocalSearchParams<{datestamp: string}>();
+
   const db = useSQLiteContext();
   const {colorScheme} = useColorScheme();
-  const tasks = useTaskIndex(state => state.tasks);
-  const addTask = useTaskIndex(state => state.createTask);
+
+  const addToTaskList = useTaskList(state => state.createTask);
+  const addToTaskTemplates = useTaskTemplates(state => state.createTask);
+
   const [task, setTask] = useState<TaskTemplate>({
     id: -1,
     color: "",
     title: "",
     description: "",
-    timestamp: undefined,
-    duration: undefined,
-    native: true,
+    native: false,
   })
 
   const [status, setStatus] = useState("");
+  const [showTime, setShowTime] = useState(false);
+  //this is a dummy date state used for receiving the input from DatePicker (time mode)
+  const [date, setDate] = useState(new Date());
+
   const submit = async () => {
-    if (!task.title.length && !task.description.length && !task.color.toString().length) {
+    if ((!task.title.length && !task.description.length) || !task.color.toString().length) {
       setStatus("unfilled");
       return
     }
-    if (tasks.find(t => t.title == task.title)) {
-      setStatus("same title");
-      return;
-    }
+    const template_id = await addToTaskTemplates(db, task);
+    await addToTaskList(db, {...task, date: new Date(datestamp), template_id});
+    router.back();
 
-    await addTask(db, task);
-    setTask({...task, title: "", description: "", color: ""})
   }
+  
   return (
-    <SafeAreaView className="">
-      <ThemedView reset>
-        <Pressable onPressOut={() => router.back()} className="flex flex-col justify-start items-center fixed w-full h-full z-0">
-            <Pressable onPressOut={(e) => e.stopPropagation()} className="z-1 mt-20 flex flex-col justify-start py-5 px-7 bg-zinc-100 dark:bg-zinc-900 box-border rounded-xl w-3/4 aspect-3/4">
-              <ThemedText>Create Task: </ThemedText>
-              <ThemedText>title: </ThemedText>
-              <ThemedInput value={task.title} onChangeText={(s) => {setTask({...task, title: s})}}/>
-              <ThemedText>description: </ThemedText>
-              <ThemedInput value={task.description} onChangeText={(s) => setTask({...task, description: s})}/>
+    <Pressable className="w-full h-full" onPressOut={() => {Keyboard.isVisible() ? Keyboard.dismiss() : router.back()}}>
+      <ThemedView reset className="bg-zinc-100 dark:bg-zinc-900 m-auto flex flex-col justify-start w-80 h-50 py-5 px-7 box-border">
+        <Pressable onPressOut={e => e.stopPropagation()}>
+          <ThemedText>Create a Task: </ThemedText>
+          <ThemedText>Title: </ThemedText>
+          <ThemedInput value={task.title} onChangeText={(s) => {setTask({...task, title: s})}}/>
+          <ThemedText style={{opacity: 0.5}}>Description: </ThemedText>
+          <ThemedInput value={task.description} onChangeText={(s) => setTask({...task, description: s})}/>
 
-              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                <ThemedView className="flex-row flex-1 py-2 my-2">
+          <ThemedText>Color: </ThemedText>
+          <ThemedView className="h-10">
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} className="border-red-200 rounded-full">
+              <ThemedView className="flex flex-row">
                 {
                   colors.map((c, index) => (
                     <TouchableOpacity 
-                    onPressOut={() => setTask({...task, color: c})}
-                    key={index.toString()}
+                      onPressOut={() => setTask({...task, color: c})}
+                      key={index.toString()}
                     >
                       <ThemedView className="w-6 h-6 m-2 rounded-full" style={[{backgroundColor: c, outlineColor: "white", outlineOffset: 2}, task.color === c ? {outlineWidth: 2} : {}]}>
-                    </ThemedView>
+                      </ThemedView>
                     </TouchableOpacity>
                   ))
                 }
-                </ThemedView>
-              </ScrollView>
+              </ThemedView>
+            </ScrollView>
+          </ThemedView>
 
-              <ThemedText>{status}</ThemedText>
-              <ThemedButton onPressOut={submit} className="rounded-md">
-                <ThemedText className="text-white dark:text-black text-center">Submit</ThemedText>
-              </ThemedButton>
-          </Pressable>
+          <ThemedText style={{opacity: showTime ? 1. : 0.5}}>Time{showTime ? ":" : "?"}</ThemedText>
+          <ThemedView className="flex flex-col items-start">
+            <ThemedView className="flex flex-row">
+              <Switch value={showTime} onValueChange={setShowTime} className="-translate-x-3 scale-50" />
+            </ThemedView>
+            { showTime && (
+              <>
+                <ThemedText>Timestamp: </ThemedText>
+
+                <DateTimePicker 
+                  mode="time" 
+                  value={date} 
+                  onChange={(_, d) => { if (d) {setDate(d)}}} 
+                  disabled={!showTime} 
+                  display="compact"
+                  style={{marginLeft: 0}}
+                /> 
+
+                <ThemedText>Duration: {durationToString(task.default_duration || 0)}</ThemedText>
+              </>
+            )}
+          </ThemedView>
+          <ThemedText>{status}</ThemedText>
+          <ThemedButton onPressOut={submit} className="rounded-md mb-2">
+            <ThemedText className="!text-white dark:!text-black text-center">Submit</ThemedText>
+          </ThemedButton>
+          <ThemedButton onPressOut={() => router.back()} className="rounded-md !bg-transparent" >
+            <ThemedText className="!text-dark dark:!text-white text-center">Go Back</ThemedText>
+          </ThemedButton>
         </Pressable>
       </ThemedView>
-    </SafeAreaView>
-
+    </Pressable>
   )
 }

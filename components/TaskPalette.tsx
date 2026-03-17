@@ -1,4 +1,4 @@
-import { TaskTemplate, useTaskIndex, useTaskTarget } from "@/lib/task/task";
+import { TaskTemplate, useTaskTarget, useTaskTemplates } from "@/lib/task/task";
 import {Link, router} from "expo-router";
 import { View, Text, StyleSheet, TouchableOpacity, FlatList, ScrollView } from "react-native";
 import {ThemedButton, ThemedText, ThemedView} from "./ThemedComponents";
@@ -12,7 +12,7 @@ interface Props {
 export default function TaskPalette({className}: Props) {
   const {colorScheme} = useColorScheme();
   //this is the task index, which are the created tasks that you then use for the taskList
-  const tasks = useTaskIndex(state => state.tasks);
+  const tasks = useTaskTemplates(state => state.tasks).filter(t => t.native);
   const setTask = useTaskTarget(state => state.setTask);
   const [taskProxy, setTaskProxy] = useState<TaskTemplate | null>( useTaskTarget(state => state.task))
   const defaultStyle = "flex flex-row justify-start items-center box-border p-2"

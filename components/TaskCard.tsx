@@ -1,23 +1,14 @@
-import {Task, TaskTemplate, useTaskIndex} from "@/lib/task/task";
+import {Task, TaskTemplate} from "@/lib/task/task";
 import {timeStampAfter, timeStampToString} from "@/lib/time/time";
-import {useSQLiteContext} from "expo-sqlite";
-import {View, Text, Button} from "react-native";
 import {ThemedButton, ThemedText, ThemedView} from "./ThemedComponents";
 
 interface Props {
   task: TaskTemplate;
   className?: string; 
-  deletable?: boolean;
   opaque?: boolean;
+  onDelete?: () => Promise<void>
 }
-export default function TaskCard({task, className, deletable, opaque}: Props) {
-  const db = useSQLiteContext();
-  const deleteTask = useTaskIndex( state => state.deleteTask );
-  const press = () => {
-    if (task.id) {
-      deleteTask(db, task.id);
-    }
-  }
+export default function TaskCard({task, className, onDelete, opaque}: Props) {
   const defaultStyle = "flex flex-row justify-between items-center box-border px-7"
   return (
     <ThemedView reset className={`${defaultStyle} ${className || ""}`} style={opaque ? {backgroundColor: task.color} : {borderWidth: 2, borderColor: task.color}}>
@@ -27,8 +18,7 @@ export default function TaskCard({task, className, deletable, opaque}: Props) {
         <ThemedText>
           {
             task.timestamp ? (
-              `${timeStampToString(task.timestamp)}` + " - " + 
-                (task.duration ? 
+              `${timeStampToString(task.timestamp)}` + " - " + (task.duration ? 
                  `${timeStampToString(timeStampAfter(task.timestamp!, task.duration))}` : "" )
             ) : ''
           }
@@ -37,8 +27,8 @@ export default function TaskCard({task, className, deletable, opaque}: Props) {
       </ThemedView>
       
       {
-        deletable && (
-      <ThemedButton className="h-12 rounded-xl" onPressOut={press}>
+        onDelete && (
+      <ThemedButton className="h-12 rounded-xl" onPressOut={onDelete}>
         <ThemedText >Delete</ThemedText>
       </ThemedButton>
         )

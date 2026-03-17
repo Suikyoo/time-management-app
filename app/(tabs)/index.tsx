@@ -1,14 +1,14 @@
-import {getDateAfter, getFinalDate} from "@/lib/calendar/calendar";
+import { getDateAfter, getFinalDate } from "@/lib/calendar/calendar";
 import { Day } from "@/lib/time/time";
-import {useEffect, useRef, useState} from "react";
+import { useRef, useState } from "react";
 import { FlatList, ScrollView, ViewabilityConfig, ViewToken } from "react-native";
 
 import DayView from "@/components/DayView";
 import Calendar from "@/components/Calendar";
 import TaskPalette from "@/components/TaskPalette";
-import {useColorScheme} from "nativewind";
-import {ThemedView} from "@/components/ThemedComponents";
-import {styles} from "@/lib/style/style";
+import { useColorScheme } from "nativewind";
+import { ThemedView } from "@/components/ThemedComponents";
+import { styles } from "@/lib/style/style";
 
 export default function Index() {
   const [date, setDate] = useState(new Date());

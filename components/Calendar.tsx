@@ -5,6 +5,7 @@ import {useEffect, useState} from "react";
 import { View, Text, StyleSheet, FlatList, TouchableOpacity } from "react-native";
 import {ThemedText, ThemedView} from "./ThemedComponents";
 import {useColorScheme} from "nativewind";
+import { router } from "expo-router";
 
 interface CalendarProp {
   date: Date;
@@ -20,27 +21,27 @@ interface CalendarDayProp {
 
 function CalendarDay({day, tasks, active}: CalendarDayProp) {
   const {colorScheme} = useColorScheme();
-  
+
   return (
     <ThemedView
-    reset
-    className="flex flex-col items-center w-full h-full text-center rounded-sm"
-    style={{
-      outlineColor: colorScheme === "dark" ? "white" : "black", 
-      outlineWidth: 1, 
-      opacity: active ? 1 : 0.3,
-      backgroundColor: tasks.length ? "#444" : undefined,
-    }} 
+      reset
+      className="flex flex-col items-center w-full h-full text-center rounded-sm"
+      style={{
+        outlineColor: colorScheme === "dark" ? "white" : "black", 
+        outlineWidth: 1, 
+        opacity: active ? 1 : 0.3,
+        backgroundColor: tasks.length ? "#444" : undefined,
+      }} 
     >
-    <ThemedView className="flex flex-row self-start justify-start mx-2 my-1">
-    {
-      tasks.slice(0, 2).map(t => (
-        <ThemedView key={t.id.toString()} className="w-2 h-2 rounded-full" style={{backgroundColor: t.color}} >
-        </ThemedView>
-      ))
-    }
-    </ThemedView>
-      
+      <ThemedView className="flex flex-row self-start justify-start mx-2 my-1">
+        {
+          tasks.slice(0, 2).map(t => (
+            <ThemedView key={t.id.toString()} className="w-2 h-2 rounded-full" style={{backgroundColor: t.color}} >
+            </ThemedView>
+          ))
+        }
+      </ThemedView>
+
       <ThemedText>{day}</ThemedText>
     </ThemedView>
   )
@@ -86,29 +87,35 @@ export default function Calendar({date, active}: CalendarProp) {
         <ThemedText>{month_names[page.month]}</ThemedText>
       </ThemedView>
       <ThemedView className="flex flex-row flex-wrap items-center w-full">
-      {
-        day_names.map((v, index) => (
-          <ThemedView key={index} className="flex bold justify-center items-center w-[14.27%]">
-          <ThemedText>{v.substring(0, 3)}</ThemedText>
-          </ThemedView>
-        ))
-      }
-      {
-        page.days.map((d, index) => {
-          const active = index >= page.offset;
-          const new_date = new Date(date.getUTCFullYear(), date.getUTCMonth() - (active ? 0 : 1), d, 12);
-          const s = proxyTaskList.filter((t) => dateIsEqual(new_date, t.date))
-          return (
-            <TouchableOpacity 
-            onPress={() => press(s, new_date)}
-            onLongPress={() => {}}
-            key={index}
-            className="text-center flex justify-center w-[14.27%] h-[50px] box-border p-1"
-            >
-              <CalendarDay day={d} tasks={s} active={active} />
-            </TouchableOpacity>
-          )})
-      }
+        {
+          day_names.map((v, index) => (
+            <ThemedView key={index} className="flex bold justify-center items-center w-[14.27%]">
+              <ThemedText>{v.substring(0, 3)}</ThemedText>
+            </ThemedView>
+          ))
+        }
+        {
+          page.days.map((d, index) => {
+            const active = index >= page.offset;
+            const new_date = new Date(date.getUTCFullYear(), date.getUTCMonth() - (active ? 0 : 1), d, 12);
+            const s = proxyTaskList.filter((t) => dateIsEqual(new_date, t.date))
+            return (
+              <TouchableOpacity 
+                onPress={() => press(s, new_date)}
+                onLongPress={() => router.push({
+                  pathname: "/day/[datestamp]",
+                  params: {
+                    datestamp: new_date.toISOString()
+                  }
+
+                })}
+                key={index}
+                className="text-center flex justify-center w-[14.27%] h-[50px] box-border p-1"
+              >
+                <CalendarDay day={d} tasks={s} active={active} />
+              </TouchableOpacity>
+            )})
+        }
       </ThemedView>
     </ThemedView>
   );

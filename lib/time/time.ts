@@ -80,9 +80,12 @@ export function timeStampAfter(t: TimeStamp, d: Duration): TimeStamp {
 
 }
 
-export function timeStampToString(t: TimeStamp): string {
+export function timeStampToString(t?: TimeStamp): string {
+  if (!t) {
+    return "";
+  }
+
   if (t.mod !== null) {
-    console.log(t.hours, t.minutes);
     return `${t.hours}:${Math.floor(t.minutes).toString().padStart(2, "0")} ${t.mod ? "PM" : "AM"}`;
   }
   return `${t.hours}:${t.minutes}`;
