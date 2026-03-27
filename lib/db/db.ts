@@ -1,25 +1,8 @@
 import * as SQLite from "expo-sqlite"
-import {Task, TaskTemplate, WeeklyTask} from "../task/task";
+import {Task, TaskTemplate, WeeklyTask, WeeklyTaskTemplate} from "../task/task";
 import {getTimeStampfromString, timeStampToString} from "../time/time";
 
-async function migrateTaskList (db: SQLite.SQLiteDatabase) {
-    await db.execAsync("DROP TABLE IF EXISTS task_list;");
 
-    await db.execAsync("PRAGMA foreign_keys = ON;")
-
-    await db.execAsync(
-      `
-      CREATE TABLE IF NOT EXISTS task_list (
-        id INTEGER PRIMARY KEY,
-        date TEXT,
-        template_id INTEGER,
-        FOREIGN KEY (template_id) REFERENCES task_templates (id)
-      );
-      `
-  )
-  
-
-}
 
 async function migrateTaskTemplates (db: SQLite.SQLiteDatabase) {
 
@@ -41,6 +24,45 @@ async function migrateTaskTemplates (db: SQLite.SQLiteDatabase) {
 
 }
 
+async function migrateWeeklyTaskTemplates (db: SQLite.SQLiteDatabase) {
+
+  await db.execAsync("DROP TABLE IF EXISTS weekly_task_templates;");
+
+  await db.execAsync(
+    `
+    CREATE TABLE IF NOT EXISTS weekly_task_templates (
+      id INTEGER PRIMARY KEY,
+      color TEXT NOT NULL,
+      title TEXT NOT NULL,
+      description TEXT NOT NULL,
+      timestamp TEXT,
+      duration INTEGER,
+      visible BOOLEAN
+    );
+    `
+  )
+
+}
+
+async function migrateTaskList (db: SQLite.SQLiteDatabase) {
+    await db.execAsync("DROP TABLE IF EXISTS task_list;");
+
+    await db.execAsync("PRAGMA foreign_keys = ON;")
+
+    await db.execAsync(
+      `
+      CREATE TABLE IF NOT EXISTS task_list (
+        id INTEGER PRIMARY KEY,
+        date TEXT,
+        template_id INTEGER,
+        FOREIGN KEY (template_id) REFERENCES task_templates (id)
+      );
+      `
+  )
+  
+
+}
+
 async function migrateWeeklyTasks (db: SQLite.SQLiteDatabase) {
     await db.execAsync("DROP TABLE IF EXISTS weekly_tasks;");
 
@@ -59,69 +81,18 @@ async function migrateWeeklyTasks (db: SQLite.SQLiteDatabase) {
   
 
 }
+
 export async function migrateDB(db: SQLite.SQLiteDatabase) {
 
 
   await migrateTaskTemplates(db);
 
+  await migrateWeeklyTaskTemplates(db);
+
   await migrateTaskList(db);
 
   await migrateWeeklyTasks(db);
 
-}
-
-export async function getTaskList(db: SQLite.SQLiteDatabase): Promise<Task[]> {
-
-  const res = await db.getAllAsync<any>(
-    `
-    SELECT * 
-    FROM task_list 
-    INNER JOIN task_templates ON task_list.template_id = task_templates.id;
-    `
-  );
-
-  return res.map<Task>((i) => ({
-    id: i.id,
-    color: i.color,
-    title: i.title,
-    description: i.description,
-    date: i.date && new Date(i.date),
-    //timestamp: (i.timestamp && getTimeStampfromString(i.timestamp)) || undefined,
-    timestamp: i.timestamp ? getTimeStampfromString(i.timstamp) : undefined,
-    duration: i.duration || undefined,
-    visible: Boolean(i.visible),
-    template_id: i.index_id,
-  }));
-  
-}
-export async function addToTaskList(db: SQLite.SQLiteDatabase, task: Task): Promise<number> {
-
-  const res = await db.runAsync(
-    `
-    INSERT INTO task_list (date, template_id) 
-    VALUES (?, ?);
-    `, 
-    [
-      (task.date && task.date.toString()) || null,
-      task.template_id,
-    ] 
-  );
-  return res.lastInsertRowId;
-}
-export async function deleteFromTaskList(db: SQLite.SQLiteDatabase, id: number): Promise<void> {
-
-  try {
-    await db.runAsync(
-      `
-      DELETE FROM task_list
-      WHERE id = ?;
-      `, 
-      [id]
-    );
-  }
-  catch (e) {
-    throw e;
-  }
 }
 
 export async function getTaskTemplates(db: SQLite.SQLiteDatabase): Promise<TaskTemplate[]> {
@@ -184,6 +155,122 @@ export async function deleteFromTaskTemplates(db: SQLite.SQLiteDatabase, id: num
     throw e;
   }
 }
+
+export async function getWeeklyTaskTemplates(db: SQLite.SQLiteDatabase): Promise<WeeklyTaskTemplate[]> {
+
+  const res = await db.getAllAsync<any>(
+    `
+    SELECT * 
+    FROM weekly_task_templates;
+    `
+  );
+
+  return res.map<WeeklyTaskTemplate>((i) => ({
+    id: i.id,
+    color: i.color,
+    title: i.title,
+    description: i.description,
+
+    //timestamp: i.timestamp && getTimeStampfromString(i.default_timestamp),
+    timestamp: i.timestamp,
+    duration: i.duration,
+    visible: Boolean(i.visible),
+  }));
+ 
+  
+}
+
+export async function addToWeeklyTaskTemplates(db: SQLite.SQLiteDatabase, task: WeeklyTaskTemplate): Promise<number> {
+
+  const res = await db.runAsync(
+    `
+    INSERT INTO weekly_task_templates (title, description, color, timestamp, duration, visible) 
+    VALUES (?, ?, ?, ?, ?, ?);
+    `, 
+    [
+      task.title, 
+      task.description, 
+      task.color.toString(), 
+      //(task.default_timestamp && timeStampToString(task.default_timestamp)) || null,
+      timeStampToString(task.timestamp),
+      task.duration,
+      task.visible ? 1 : 0,
+    ]
+  );
+  return res.lastInsertRowId;
+}
+
+
+export async function deleteFromWeeklyTaskTemplates(db: SQLite.SQLiteDatabase, id: number): Promise<void> {
+
+  try {
+      await db.runAsync(
+        `
+        DELETE FROM weekly_task_templates
+        WHERE id = ?;
+        `, 
+        [id]
+      );
+  }
+  catch (e) {
+    throw e;
+  }
+}
+
+export async function getTaskList(db: SQLite.SQLiteDatabase): Promise<Task[]> {
+
+  const res = await db.getAllAsync<any>(
+    `
+    SELECT * 
+    FROM task_list 
+    INNER JOIN task_templates ON task_list.template_id = task_templates.id;
+    `
+  );
+
+  return res.map<Task>((i) => ({
+    id: i.id,
+    color: i.color,
+    title: i.title,
+    description: i.description,
+    date: i.date && new Date(i.date),
+    //timestamp: (i.timestamp && getTimeStampfromString(i.timestamp)) || undefined,
+    timestamp: i.timestamp ? getTimeStampfromString(i.timstamp) : undefined,
+    duration: i.duration || undefined,
+    visible: Boolean(i.visible),
+    template_id: i.index_id,
+  }));
+  
+}
+export async function addToTaskList(db: SQLite.SQLiteDatabase, task: Task): Promise<number> {
+
+  const res = await db.runAsync(
+    `
+    INSERT INTO task_list (date, template_id) 
+    VALUES (?, ?);
+    `, 
+    [
+      (task.date && task.date.toString()) || null,
+      task.template_id,
+    ] 
+  );
+  return res.lastInsertRowId;
+}
+export async function deleteFromTaskList(db: SQLite.SQLiteDatabase, id: number): Promise<void> {
+
+  try {
+    await db.runAsync(
+      `
+      DELETE FROM task_list
+      WHERE id = ?;
+      `, 
+      [id]
+    );
+  }
+  catch (e) {
+    throw e;
+  }
+}
+
 
 export async function getWeeklyTasks(db: SQLite.SQLiteDatabase): Promise<WeeklyTask[]> {
 

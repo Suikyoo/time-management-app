@@ -1,7 +1,8 @@
+import type { StoreApi } from 'zustand/vanilla';
 import {ColorValue} from "react-native";
 import {type Duration, TimeStamp} from "../time/time";
-import { create } from "zustand";
-import {addToTaskTemplates, addToTaskList, deleteFromTaskTemplates, deleteFromTaskList, getTaskTemplates, getTaskList, getWeeklyTasks, addToWeeklyTasks, deleteFromWeeklyTasks} from "../db/db";
+import { create, UseBoundStore } from "zustand";
+import {addToTaskTemplates, addToTaskList, deleteFromTaskTemplates, deleteFromTaskList, getTaskTemplates, getTaskList, getWeeklyTasks, addToWeeklyTasks, deleteFromWeeklyTasks, getWeeklyTaskTemplates, addToWeeklyTaskTemplates, deleteFromWeeklyTaskTemplates} from "../db/db";
 import {SQLiteDatabase} from "expo-sqlite";
 
 export interface TaskTemplate {
@@ -18,21 +19,28 @@ export interface TaskTemplate {
 
 }
 
+//weekly tasks templates need to have time specifics
+export interface WeeklyTaskTemplate extends TaskTemplate {
+  timestamp: TimeStamp;
+  duration: Duration;
+
+}
+
 export interface Task extends TaskTemplate {
   date: Date;
   template_id: number;
 
 }
 
-export interface WeeklyTask extends TaskTemplate {
+export interface WeeklyTask extends WeeklyTaskTemplate {
   //weekday 0-6 Sunday - monday
   day: number;
   template_id: number;
 }
 
-interface taskData {
-  task: TaskTemplate| null;
-  setTask: (task: TaskTemplate|null) => void;
+interface taskData<T> {
+  task: T | null;
+  setTask: (task: T | null) => void;
 }
 
 //both the taskList as well as the taskTemplates have separate indexing systems
@@ -50,36 +58,19 @@ interface taskStoreData<T> {
 }
 
 //used as the state for the Task Palette
-export const useTaskTarget = create<taskData>((set) => (
+export const useTaskTarget = create<taskData<TaskTemplate>>((set) => (
   {
     task: null,
     setTask: (task) => set(() => ({task}))
   }
 ))
 
-export const useTaskList = create<taskStoreData<Task>>((set) => (
+export const useWeeklyTaskTarget = create<taskData<WeeklyTaskTemplate>>((set) => (
   {
-    tasks: [],
-    loadTasks: async (db): Promise<number> => {
-      const data = await getTaskList(db);
-      set(() => ({tasks: data}))
-      return data.length;
-    },
-    createTask: async (db, {...task}): Promise<number> => {
-      const id = await addToTaskList(db, task);
-      set((state) => ({tasks: state.tasks.concat([{...task, id}])}));
-
-      return id;
-    },
-
-    deleteTask: async (db, id): Promise<number> => {
-      await deleteFromTaskList(db, id);
-      set((state) => ({tasks: state.tasks.filter((t) => t.id !== id)}))
-      return id;
-      
-    },
+    task: null,
+    setTask: (task) => set(() => ({task}))
   }
-));
+))
 
 export const useTaskTemplates = create<taskStoreData<TaskTemplate>>((set) => (
   {
@@ -100,6 +91,52 @@ export const useTaskTemplates = create<taskStoreData<TaskTemplate>>((set) => (
       set((state) => ({tasks: state.tasks.filter((t) => t.id !== id)}))
       return id;
     },  
+  }
+));
+
+export const useWeeklyTaskTemplates = create<taskStoreData<WeeklyTaskTemplate>>((set) => (
+  {
+    tasks: [],
+    loadTasks: async (db): Promise<number> => {
+      const data = await getWeeklyTaskTemplates(db);
+      set(() => ({tasks: data}))
+      return data.length;
+    },
+    createTask: async (db, {...task}): Promise<number> => {
+      const id = await addToWeeklyTaskTemplates(db, task)
+      set((state) => ({tasks: state.tasks.concat([{...task, id}])}));
+      return id;
+    },
+
+    deleteTask: async (db, id): Promise<number> => {
+      await deleteFromWeeklyTaskTemplates(db, id);
+      set((state) => ({tasks: state.tasks.filter((t) => t.id !== id)}))
+      return id;
+    },  
+  }
+));
+
+export const useTasks = create<taskStoreData<Task>>((set) => (
+  {
+    tasks: [],
+    loadTasks: async (db): Promise<number> => {
+      const data = await getTaskList(db);
+      set(() => ({tasks: data}))
+      return data.length;
+    },
+    createTask: async (db, {...task}): Promise<number> => {
+      const id = await addToTaskList(db, task);
+      set((state) => ({tasks: state.tasks.concat([{...task, id}])}));
+
+      return id;
+    },
+
+    deleteTask: async (db, id): Promise<number> => {
+      await deleteFromTaskList(db, id);
+      set((state) => ({tasks: state.tasks.filter((t) => t.id !== id)}))
+      return id;
+      
+    },
   }
 ));
 
@@ -127,4 +164,4 @@ export const useWeeklyTasks = create<taskStoreData<WeeklyTask>>((set) => (
   }
 ));
 
-//compound operation functions
+export type TaskState<T> = UseBoundStore<StoreApi<taskStoreData<T>>>

@@ -1,10 +1,7 @@
-# Todo
+#Todo
 
-## visible color selection 
 
-## Button Styling
 
-## Figure out how to input time for templates
 
 - General Styling
 ## - Modal w/ Day View Component ( on hold per date)
@@ -22,4 +19,23 @@
 - Week View Tab
 
 each cell should be made to be an empty cell then tasks are above them with absolute positioning
+
+--------------------------------------------------
+                    view
+--------------------------------------------------
+           |                view
+           |_____________________________________
+           |                view
+           |_____________________________________
+    view   |                view
+           |_____________________________________
+           |                view
+           |_____________________________________
+           |                view
+
+
+
+## componentize the creation forms for cleaner code #/
+## afterwards, create the creatio form for the week view 
+## the week view has it's dedicated week_tasks table as well as WeeklyTaskTarget and other counterpart to entities like TaskTarget, Tasks, and TaskTemplate(weekTemplate inherits from this)
 

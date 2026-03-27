@@ -1,5 +1,5 @@
 import {dateIsEqual, month_names} from "@/lib/calendar/calendar";
-import {useTaskList} from "@/lib/task/task";
+import {useTasks} from "@/lib/task/task";
 import {ThemedText, ThemedView, ThemedButton} from "./ThemedComponents";
 import {ScrollView, TouchableOpacity, ViewProps} from "react-native";
 import {useColorScheme} from "nativewind";
@@ -13,7 +13,7 @@ interface Props extends ViewProps{
 
 export default function DayView({date, className, ...props}: Props) {
   const {colorScheme} = useColorScheme();
-  const tasks = useTaskList(s => s.tasks).filter(t => dateIsEqual(t.date, date))
+  const tasks = useTasks(s => s.tasks).filter(t => dateIsEqual(t.date, date))
   const defaultStyle = "flex flex-row justify-between aspect-3/4"
   return (
     <ThemedView reset className={`${defaultStyle} ${className || ""}`} {...props}>

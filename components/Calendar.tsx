@@ -1,5 +1,5 @@
 import {getPage, month_names, day_names, dateIsEqual} from "@/lib/calendar/calendar";
-import {Task, useTaskList, useTaskTarget} from "@/lib/task/task";
+import {Task, useTasks, useTaskTarget} from "@/lib/task/task";
 import {useSQLiteContext} from "expo-sqlite";
 import {useEffect, useState} from "react";
 import { View, Text, StyleSheet, FlatList, TouchableOpacity } from "react-native";
@@ -52,14 +52,21 @@ export default function Calendar({date, active}: CalendarProp) {
 
   const page = getPage(date);
 
-  const addTask = useTaskList(state => state.createTask);
-  const deleteTask = useTaskList(state => state.deleteTask);
+  const addTask = useTasks(state => state.createTask);
+  const deleteTask = useTasks(state => state.deleteTask);
 
   const target = useTaskTarget(state => state.task);
 
   const press = async(tasks: Task[], newDate: Date) => {
     if (!target) {
-      return
+      router.push({
+        pathname: "/tasks/[datestamp]",
+        params: {
+          datestamp: newDate.toISOString(),
+        }
+      })
+      return;
+
     }
 
     const foundTask = tasks.find(t => t.template_id === target.id);
@@ -67,16 +74,15 @@ export default function Calendar({date, active}: CalendarProp) {
       await deleteTask(db, foundTask.id);
     }
     else {
-      console.log(date, newDate)
       await addTask(db, {...target, date: newDate, template_id: target.id})
     }
 
   }
-  const [proxyTaskList, setProxyTaskList] = useState<Task[]>(useTaskList(s => s.tasks))
+  const [proxyTaskList, setProxyTaskList] = useState<Task[]>(useTasks(s => s.tasks))
 
   useEffect(() => {
     if (active) {
-      const unsubscribe = useTaskList.subscribe((curr, _) => {; setProxyTaskList(curr.tasks)});
+      const unsubscribe = useTasks.subscribe((curr, _) => {; setProxyTaskList(curr.tasks)});
       return unsubscribe;
     }
   }, [active]);

@@ -85,7 +85,7 @@ export default function Index() {
           />
         </ThemedView>
 
-        <TaskPalette className="w-full my-5 bg-white rounded-lg dark:bg-zinc-900"/>
+        <TaskPalette.Tasks className="w-full my-5 bg-white rounded-lg dark:bg-zinc-900"/>
         </ThemedView>
       </ScrollView>
     </ThemedView>

@@ -13,17 +13,17 @@
 //but instead of January 1970, It'll just base it off 12:00AM
 export type Duration = number;
 
+export const Second: Duration = 1000;
+export const Minute: Duration = Second * 60;
+export const Hour: Duration = Minute * 60; 
+export const Day: Duration = Hour * 24;
+
 export interface TimeStamp {
   //given a string "12:51 AM",
   hours: number;        //12
   minutes: number;      //51
   mod: number | null;   //AM
 }
-
-export const Second: Duration = 1000;
-export const Minute: Duration = Second * 60;
-export const Hour: Duration = Minute * 60; 
-export const Day: Duration = Hour * 24;
 
 //hour: 00 min: 00 mod: null
 function getMilitary(t: TimeStamp): TimeStamp {
@@ -91,16 +91,28 @@ export function timeStampToString(t?: TimeStamp): string {
   return `${t.hours}:${t.minutes}`;
 }
 export function durationToString(d: Duration): string {
+  let concats: string[] = [];
+  d += Second;
   if (d >= Day) {
     const value = Math.floor(d / Day);
-    return `${value} Day${value > 1 ? "s" : ""}`
+    concats.push(`${value} Day${value > 1 ? "s" : ""}`);
+    d %= Day;
   }
-  else if (d >= Hour) {
+  if (d >= Hour) {
     const value = Math.floor(d / Hour);
-    return `${value} Hour${value > 1 ? "s" : ""}`
+    concats.push(`${value} Hour${value > 1 ? "s" : ""}`);
+    d %= Hour;
   }
 
-  const value = Math.floor(d / Minute);
-  return `${value} Minute${value > 1 ? "s" : ""}`
+  if (d >= Minute) {
+    const value = Math.floor(d / Minute);
+    concats.push(`${value} Minute${value > 1 ? "s" : ""}`);
+    d %= Minute;
+  }
+
+  //const value = Math.floor(d / Second);
+  //concats.push(`${value} Second${value > 1 ? "s" : ""}`);
+
+  return concats.join(", ");
 
 }

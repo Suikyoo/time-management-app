@@ -1,3 +1,4 @@
+import { router } from "expo-router";
 import {useColorScheme} from "nativewind";
 import {createContext, useContext} from "react";
 import {Text, TextInput, TextInputProps, TextProps, TouchableOpacity, TouchableOpacityProps, View, ViewProps} from "react-native";
@@ -11,7 +12,6 @@ interface inheritProps {
 }
 
 const ThemeContext = createContext<inheritProps>({allInherit: "", textInherit: "", inputInherit: "", buttonInherit: ""});
-
 
 export function ThemedView({className = "", reset, children, ...props}: inheritProps & ViewProps & {reset?: boolean}) {
   //this does nothing for now, but on the case where I have default native-wind styles, this is gonna be useful
@@ -85,3 +85,20 @@ export function ThemedButton({className = "", children, ...props}: inheritProps 
     </TouchableOpacity>
   );
 }
+
+export function NewPage({children}: ViewProps) {
+  return (
+    <ThemedView className="bg-white dark:bg-zinc-950 h-full w-full" reset>
+      {children}
+    </ThemedView>
+  )
+}
+
+export function FooterPlusButton({...rest}: inheritProps & TouchableOpacityProps) {
+  return (
+    <ThemedButton {...rest} className="w-12 aspect-square absolute right-safe-or-4 bottom-safe-or-10 rounded-xl" >
+      <ThemedText className="text-2xl text-center text-white dark:text-black">+</ThemedText>
+    </ThemedButton>
+  )
+}
+
