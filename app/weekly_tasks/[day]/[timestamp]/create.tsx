@@ -1,11 +1,12 @@
 import TaskCreation from "@/components/TaskCreation";
 import { TaskTemplate, useTasks, useTaskTemplates, useWeeklyTasks, useWeeklyTaskTemplates } from "@/lib/task/task";
+import { getDuration, getTimeStampfromString } from "@/lib/time/time";
 import { useLocalSearchParams } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
 
 export default function Create() {
   const db = useSQLiteContext();
-  const {day} = useLocalSearchParams<{day: string}>();
+  const {day, timestamp} = useLocalSearchParams<{day: string, timestamp: string}>();
 
   const addToTemplates = useWeeklyTaskTemplates(state => state.createTask);
   const addToTasks = useWeeklyTasks(state => state.createTask);
@@ -17,11 +18,12 @@ export default function Create() {
     const id = await addToTemplates(db, weeklyTemplate);
 
     //instantiate a task of that invisible template
+    console.log(weeklyTemplate);
     await addToTasks(db, {...weeklyTemplate, day: Number(day), template_id: id});
   }
 
   return (
-    <TaskCreation title="Create Task" onSubmit={onSubmit} durationOffset={}/>
+    <TaskCreation title="Create Task" onSubmit={onSubmit} durationOffset={getDuration(getTimeStampfromString(timestamp))} startLock/>
   )
 }
 

@@ -4,7 +4,7 @@ import { Task, TaskTemplate, useTaskTemplates } from "@/lib/task/task";
 import { router } from "expo-router";
 import { useColorScheme } from "nativewind";
 import { useEffect, useState } from "react";
-import {Day, Duration, durationToString, getDuration, getTimeStamp} from "@/lib/time/time";
+import {Day, Duration, durationToString, getDuration, getTimeStamp, Hour} from "@/lib/time/time";
 import Form, { Status } from "@/components/Form";
 
 interface Props {
@@ -52,7 +52,11 @@ export default function TaskCreation({title, onSubmit, durationOffset=0, startLo
 
   }
 
-  const duration = timeEnd.getTime() - timeStart.getTime()
+  let duration = timeEnd.getTime() - timeStart.getTime()
+  if (duration < 0) {
+    duration = 24 * Hour - duration;
+  }
+
 
   useEffect(() => {
     if (showTime) {

@@ -1,6 +1,8 @@
 import TaskCard from "@/components/TaskCard";
 import {FooterPlusButton, NewPage, ThemedButton, ThemedInput, ThemedText, ThemedView} from "@/components/ThemedComponents";
+import { dateIsEqual } from "@/lib/calendar/calendar";
 import {Task, TaskTemplate, useTasks, useTaskTarget, useTaskTemplates} from "@/lib/task/task";
+import { trimEpoch } from "@/lib/time/time";
 import { router, useLocalSearchParams } from "expo-router";
 import {SQLiteDatabase, useSQLiteContext} from "expo-sqlite";
 import {useColorScheme} from "nativewind";
@@ -17,13 +19,23 @@ export default function TemplateView() {
     router.back();
   }
 
+  const filterFunc = (t: Task) => {
+
+
+    return t.visible && (dateIsEqual(t.date, new Date(datestamp)))}
   return (
     <NewPage>
       <ThemedText className="!text-black dark:!text-white">Select from Templates: </ThemedText>
       <TaskCard.Picker useFunc={useTaskTemplates} onPick={onPick}/>
       <ThemedText className="!text-black dark:!text-white">Tasks: </ThemedText>
-      <TaskCard.List useFunc={useTasks}/>
-      <FooterPlusButton onPressOut={() => router.push("/tasks/[datestamp]/create")}/>
+      <TaskCard.List useFunc={useTasks} filterFunc={filterFunc}/>
+      <FooterPlusButton onPressOut={() => router.push({
+        pathname: "/tasks/[datestamp]/create",
+        params: {
+          datestamp: datestamp,
+        }
+      })} 
+      />
     </NewPage>
   );
 

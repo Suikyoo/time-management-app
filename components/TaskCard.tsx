@@ -45,15 +45,16 @@ export default function TaskCard({task, className, onDelete, opaque}: TaskCardPr
 
 interface Props<T> {
   useFunc: TaskState<T>;
+  filterFunc?: (t: T) => boolean;
 }
 
 interface PickerProps<T> extends Props<T> {
   onPick: (t: TaskTemplate) => Promise<void>;
 }
 
-TaskCard.List = <T extends TaskTemplate, >({useFunc}: Props<T>) => {
+TaskCard.List = <T extends TaskTemplate, >({useFunc, filterFunc}: Props<T>) => {
   const db = useSQLiteContext();
-  const tasks = useFunc(s => s.tasks).filter(t => t.visible);
+  const tasks = useFunc(s => s.tasks).filter((filterFunc) || (t => t.visible));
   const deleteTask = useFunc(s => s.deleteTask);
   return (
     <ScrollView showsVerticalScrollIndicator={false}>
@@ -68,9 +69,9 @@ TaskCard.List = <T extends TaskTemplate, >({useFunc}: Props<T>) => {
   )
 }
 
-TaskCard.Picker = <T extends TaskTemplate,>({useFunc, onPick}: PickerProps<T>) => {
+TaskCard.Picker = <T extends TaskTemplate,>({useFunc, onPick, filterFunc}: PickerProps<T>) => {
   //const db = useSQLiteContext();
-  const tasks = useFunc(s => s.tasks).filter(t => t.visible);
+  const tasks = useFunc(s => s.tasks).filter((filterFunc) || (t => t.visible));
   return (
     <ScrollView showsVerticalScrollIndicator={false}>
       <ThemedView>

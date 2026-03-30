@@ -74,7 +74,7 @@ async function migrateWeeklyTasks (db: SQLite.SQLiteDatabase) {
         id INTEGER PRIMARY KEY,
         day INTEGER,
         template_id INTEGER,
-        FOREIGN KEY (template_id) REFERENCES task_templates (id)
+        FOREIGN KEY (template_id) REFERENCES weekly_task_templates (id)
       );
       `
   )

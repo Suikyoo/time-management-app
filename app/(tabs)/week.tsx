@@ -1,12 +1,13 @@
 import TaskPalette from "@/components/TaskPalette";
 import { FooterPlusButton, ThemedButton, ThemedText, ThemedView } from "@/components/ThemedComponents";
 import { colors } from "@/lib/color/color";
-import { useWeeklyTasks, WeeklyTask } from "@/lib/task/task";
+import { useWeeklyTasks, useWeeklyTaskTarget, WeeklyTask } from "@/lib/task/task";
 import { Duration, getDuration, getTimeStamp, getTimeStampfromString, Hour, Minute, TimeStamp, timeStampAfter, timeStampToString } from "@/lib/time/time";
 import { router } from "expo-router";
+import { useSQLiteContext } from "expo-sqlite";
 import { useColorScheme } from "nativewind";
 import { useState } from "react";
-import { FlexStyle, StyleProp, TouchableOpacity } from "react-native";
+import { FlexStyle, StyleProp, TouchableOpacity, ScrollView } from "react-native";
 import { Timestamp } from "react-native-reanimated/lib/typescript/commonTypes";
 import { ViewStyle } from "react-native/Libraries/StyleSheet/StyleSheetTypes";
 const weekdays = [
@@ -21,6 +22,7 @@ const weekdays = [
 
 interface CellProp { name: string;
   className?: string;
+  textInherit?: string;
   touchable?: boolean;
   style?: ViewStyle;
 }
@@ -63,26 +65,22 @@ export default function WeekView() {
   const [rowSize, setRowSize] = useState(50);
 
 
-  const weeklyTasks: WeeklyTask[] = [
-    {id: 0, template_id: -1, description: "ehe", title: "task1", color: colors[0], visible: false, day: 0, timestamp: getTimeStampfromString("12:00 PM"), duration: 1 * Hour},
-    {id: 1, template_id: -1, description: "ehe", title: "task2", color: colors[1], visible: false, day: 2, timestamp: getTimeStampfromString("10:00 AM"), duration: 4 * Hour},
-    {id: 1, template_id: -1, description: "ehe", title: "task3", color: colors[2], visible: false, day: 4, timestamp: getTimeStampfromString("6:00 PM"), duration: 1 * Hour},
-  ]
+  const weeklyTasks: WeeklyTask[] = useWeeklyTasks(s => s.tasks);
 
   const timedWeeklyTasks = weeklyTasks.filter(t => t.timestamp);
   //cubify results to 30 min intervals
   const timeStampDurations = timedWeeklyTasks.map(t => Math.floor(getDuration(t.timestamp!) / (30 * Minute)) * (30 * Minute));
 
-  const minTime = Math.min(...timeStampDurations);
-  const maxTime = Math.max(...timeStampDurations);
-  const timeOffset = GCF(timeStampDurations);
+  const minTime = 0 //Math.min(...timeStampDurations);
+  const maxTime = 24 * Hour //Math.max(...timeStampDurations);
+  const timeOffset = 1 * Hour //GCF(timeStampDurations);
   const timeColumn = getTimeColumn(getTimeStamp(minTime), timeOffset, Math.floor(maxTime / timeOffset));
 
   const sizeStyle: ViewStyle = {height: rowSize};
 
-  function Cell({name, touchable, className, style}: CellProp) { 
-    return <ThemedView className={"" + className || ""} style={{...sizeStyle, ...style}}>
-      <ThemedText className="text-center">{name}</ThemedText>
+  function Cell({name, touchable, className, textInherit, style}: CellProp) { 
+    return <ThemedView textInherit={textInherit} className={"" + className || ""} style={{...sizeStyle, ...style}}>
+      <ThemedText className="text-center text-inherit">{name}</ThemedText>
     </ThemedView>
   }
 
@@ -117,22 +115,31 @@ export default function WeekView() {
 
   function ColumnGrid({dayIndex, taskDisplay=false, className}: {dayIndex: number, className: string, taskDisplay?: boolean}) {
     const tasks = taskDisplay ? weeklyTasks.filter(t => (t.day == dayIndex)) : [];
+    const target = useWeeklyTaskTarget(s => s.task);
+    const db = useSQLiteContext();
+    const addTask = useWeeklyTasks(s => s.createTask);
 
     //always have spaces when doing class concatenation for it to concatenate correctly
     return (
       <ThemedView className={"flex-1 flex-col h-full w-[14.29%] relative bg-zinc-700 " + (className || "")}>
 
         {
-
           timeColumn.map((t, index) => (
 
 
-            <TouchableOpacity key={index} onPressOut={() => router.push({
-              pathname: "/weekly_tasks/[day]",
-              params: {
-                day: "0",
+            <TouchableOpacity key={index} onPressOut={() => {
+              if (target) {
+                addTask(db, {...target, day: dayIndex, template_id: target.id});
+                return;
               }
-            })} 
+
+              router.push({
+                pathname: "/weekly_tasks/[day]/[timestamp]",
+                params: {
+                  day: dayIndex.toString(),
+                  timestamp: t,
+                }
+              })}}
             >
               {
                 (index == 0) ? 
@@ -144,7 +151,6 @@ export default function WeekView() {
 
           ))
         }
-
         {
 
           tasks.map((t, index) => {
@@ -153,7 +159,7 @@ export default function WeekView() {
             let loc: number = 0;
             let height: number = 5;
 
-            if (timeStampDuration) {
+            if (timeStampDuration != undefined) {
               loc = ((timeStampDuration - minTime) / timeOffset) * rowSize;
               if (t.duration) {
                 height = rowSize * (t.duration / timeOffset);
@@ -161,7 +167,7 @@ export default function WeekView() {
             }
 
             return (
-              <Cell key={index} name={t.title} className="box-border px-2 rounded-md " style={{position: "absolute", top: loc, height: height, backgroundColor: t.color}}/>
+              <Cell key={index} name={t.title} className="w-full box-border px-2 rounded-md" textInherit="color-black" style={{position: "absolute", top: loc, height: height, backgroundColor: t.color}}/>
             )
           })
         }
@@ -175,7 +181,8 @@ export default function WeekView() {
 
         <ThemedView className="flex flex-col w-full">
           <ColumnNames />
-          <ThemedView className="flex flex-row w-full justify-between">
+          <ScrollView style={{height: 400}}>
+          <ThemedView className="flex flex-row w-full justify-between overflow-scroll">
             <RowNames />
             <ThemedView className="flex-1 flex-row border-0 border-dashed border-slate-800 overflow-hidden relative">
               {
@@ -190,6 +197,7 @@ export default function WeekView() {
               }
             </ThemedView>
           </ThemedView>
+          </ScrollView>
         </ThemedView>
 
       </ThemedView>

@@ -76,7 +76,7 @@ export default function Index() {
           onLayout={(e) => {
             e.currentTarget.measure((_, __, width) => {setCalendarWidth(width)})
           }}
-          keyExtractor={(item) => item.getFullYear().toString() + "-" + item.getMonth().toString()}
+          keyExtractor={(item) => item.toISOString()}
           contentContainerStyle={{width: "300%"}}
           disableIntervalMomentum
           onViewableItemsChanged={paginate}

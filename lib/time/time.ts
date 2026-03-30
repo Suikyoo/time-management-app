@@ -25,6 +25,7 @@ export interface TimeStamp {
   mod: number | null;   //AM
 }
 
+
 //hour: 00 min: 00 mod: null
 function getMilitary(t: TimeStamp): TimeStamp {
   if (t.mod === null) {
@@ -48,6 +49,12 @@ function getStandard(t: TimeStamp): TimeStamp {
   new_t.hours = t.hours % 12 ;
   new_t.hours = new_t.hours == 0 ? 12 : new_t.hours; 
   return new_t;
+}
+
+//date.getTime() returns milliseconds from 1970s
+//this function returns milliseconds from the start of the day 12:00 AM
+export function trimEpoch(d: Duration): Duration {
+  return Math.floor(d / Day) * Day;
 }
 
 export function getTimeStampfromString(s: string): TimeStamp {

@@ -15,7 +15,7 @@ export default function RootLayout() {
           <Stack.Screen name="tasks/[datestamp]" options={{presentation: "modal"}}/>
 
           <Stack.Screen name="weekly_tasks/template" options={{presentation: "modal"}}/>
-          <Stack.Screen name="weekly_tasks/[day]" options={{presentation: "modal"}}/>
+          <Stack.Screen name="weekly_tasks/[day]/[timestamp]" options={{presentation: "modal"}}/>
 
           <Stack.Screen name="day/[datestamp]" options={{presentation: "transparentModal"}}/>
         </Stack>

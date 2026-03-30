@@ -40,3 +40,9 @@ each cell should be made to be an empty cell then tasks are above them with abso
 ## the week view has it's dedicated week_tasks table as well as WeeklyTaskTarget and other counterpart to entities like TaskTarget, Tasks, and TaskTemplate(weekTemplate inherits from this)
 
 ## [day]/create must have only duration field after name, description, color as you already have the start time
+
+-----------------
+## weekly task template does not work, also it needs to only input duration
+## where it is(timestart) is dictated by where the user clicks
+
+## need to create an edit form
