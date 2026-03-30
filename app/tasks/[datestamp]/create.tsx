@@ -18,7 +18,7 @@ export default function Create() {
   }
 
   return (
-    <TaskCreation title="Create Task" onSubmit={onSubmit} timeOptional/>
+    <TaskCreation title="Create Task" onSubmit={onSubmit} timeOptional />
   )
 }
 

@@ -2,19 +2,20 @@ import { ThemedView, ThemedText, ThemedInput, ThemedButton } from "@/components/
 import { colors } from "@/lib/color/color";
 import { Task, TaskTemplate, useTaskTemplates } from "@/lib/task/task";
 import { router } from "expo-router";
-import { useSQLiteContext } from "expo-sqlite";
 import { useColorScheme } from "nativewind";
 import { useEffect, useState } from "react";
-import {Day, durationToString, getDuration, getTimeStamp, Hour, Minute, TimeStamp} from "@/lib/time/time";
+import {Day, Duration, durationToString, getDuration, getTimeStamp} from "@/lib/time/time";
 import Form, { Status } from "@/components/Form";
-import { useTasks } from "@/lib/task/task";
 
 interface Props {
-title: string;
-onSubmit: (t: TaskTemplate) => Promise<void>
-timeOptional?: boolean;
+  title: string;
+  onSubmit: (t: TaskTemplate) => Promise<void>;
+  durationOffset?: Duration; 
+  startLock?: boolean;
+  endLock?: boolean;
+  timeOptional?: boolean
 }
-export default function TaskCreation({title, onSubmit, timeOptional=false}: Props) {
+export default function TaskCreation({title, onSubmit, durationOffset=0, startLock=false, endLock=false, timeOptional=false}: Props) {
   const {colorScheme} = useColorScheme();
 
   //tasks here is only used to do form validation
@@ -29,8 +30,10 @@ export default function TaskCreation({title, onSubmit, timeOptional=false}: Prop
     visible: true,
   })
 
-  const [timeStart, setTimeStart] = useState(new Date(Math.floor(Date.now() / (Day)) * Day));
-  const [timeEnd, setTimeEnd] = useState(new Date(Math.floor(Date.now() / (Day)) * Day));
+  const date = new Date(Math.floor(Date.now() / (Day)) * Day + durationOffset);
+
+  const [timeStart, setTimeStart] = useState(date);
+  const [timeEnd, setTimeEnd] = useState(date);
 
   const [showTime, setShowTime] = useState(!timeOptional);
 
@@ -66,7 +69,7 @@ export default function TaskCreation({title, onSubmit, timeOptional=false}: Prop
       <Form.TextField fieldName="Description" fieldValue={task.description} onFieldSet={(s) => setTask({...task, description: s})}/>
       <Form.ColorField fieldName="Color" fieldValue={task.color} onFieldSet={(c) => setTask({...task, color: c})}/>
       {
-        timeOptional ? 
+        (timeOptional) ? 
           <Form.SwitchField fieldName="Time? " fieldValue={showTime} onFieldSet={(b) => setShowTime(b)} />
           :
           <ThemedText>Time</ThemedText>
@@ -74,8 +77,8 @@ export default function TaskCreation({title, onSubmit, timeOptional=false}: Prop
       {
         showTime &&
           <ThemedView className="flex flex-row justify-evenly">
-            <Form.TimeField fieldName="Start Time" disabled={!showTime} fieldValue={timeStart} onFieldSet={(d) => {console.log(d); return setTimeStart(d)}} />
-            <Form.TimeField fieldName="End Time" disabled={!showTime} fieldValue={timeEnd} onFieldSet={(d) => setTimeEnd(d)} />
+            <Form.TimeField fieldName="Start Time" disabled={!showTime || startLock} fieldValue={timeStart} onFieldSet={(d) => {console.log(d); return setTimeStart(d)}} />
+            <Form.TimeField fieldName="End Time" disabled={!showTime || endLock} fieldValue={timeEnd} onFieldSet={(d) => setTimeEnd(d)} />
           </ThemedView>
       }
       <ThemedText>Duration</ThemedText>

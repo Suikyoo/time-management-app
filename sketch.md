@@ -39,3 +39,4 @@ each cell should be made to be an empty cell then tasks are above them with abso
 ## afterwards, create the creatio form for the week view 
 ## the week view has it's dedicated week_tasks table as well as WeeklyTaskTarget and other counterpart to entities like TaskTarget, Tasks, and TaskTemplate(weekTemplate inherits from this)
 
+## [day]/create must have only duration field after name, description, color as you already have the start time

@@ -21,7 +21,7 @@ export default function Create() {
   }
 
   return (
-    <TaskCreation title="Create Task" onSubmit={onSubmit} />
+    <TaskCreation title="Create Task" onSubmit={onSubmit} durationOffset={}/>
   )
 }
 
