@@ -9,7 +9,7 @@ export default function Create() {
   const addToTemplates = useWeeklyTaskTemplates(s => s.createTask);
 
  const onSubmit = async(t: TaskTemplate) => {
-    const weeklyTemplate = {...t, timestamp: t.timestamp!, duration: t.duration!, visible: false};
+    const weeklyTemplate = {...t, timestamp: t.timestamp!, duration: t.duration!, visible: true};
     await addToTemplates(db, weeklyTemplate);
 
     router.back();
@@ -17,6 +17,6 @@ export default function Create() {
   }
 
   return (
-    <TaskCreation title="Create Weekly Task Template" onSubmit={onSubmit} />
+    <TaskCreation title="Create Weekly Task Template" onSubmit={onSubmit} disableTime inputDuration/>
   )
 }

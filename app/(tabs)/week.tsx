@@ -129,7 +129,7 @@ export default function WeekView() {
 
             <TouchableOpacity key={index} onPressOut={() => {
               if (target) {
-                addTask(db, {...target, day: dayIndex, template_id: target.id});
+                addTask(db, {...target, day: dayIndex, template_id: target.id, timestamp: getTimeStampfromString(t)});
                 return;
               }
 

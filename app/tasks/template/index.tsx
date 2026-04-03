@@ -6,8 +6,6 @@ import {SQLiteDatabase, useSQLiteContext} from "expo-sqlite";
 import {useColorScheme} from "nativewind";
 
 export default function TemplateView() {
-  const db = useSQLiteContext();
-  const templates = useTaskTemplates(state => state.tasks).filter(t => t.visible);
   const {colorScheme} = useColorScheme();
 
   const taskList = useTasks(state => state.tasks);

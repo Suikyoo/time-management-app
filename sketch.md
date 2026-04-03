@@ -42,7 +42,4 @@ each cell should be made to be an empty cell then tasks are above them with abso
 ## [day]/create must have only duration field after name, description, color as you already have the start time
 
 -----------------
-## weekly task template does not work, also it needs to only input duration
-## where it is(timestart) is dictated by where the user clicks
-
 ## need to create an edit form

@@ -4,7 +4,7 @@ import { Task, TaskTemplate, useTaskTemplates } from "@/lib/task/task";
 import { router } from "expo-router";
 import { useColorScheme } from "nativewind";
 import { useEffect, useState } from "react";
-import {Day, Duration, durationToString, getDuration, getTimeStamp, Hour} from "@/lib/time/time";
+import {Day, Duration, durationToString, getDuration, getTimeStamp, Hour, Minute} from "@/lib/time/time";
 import Form, { Status } from "@/components/Form";
 
 interface Props {
@@ -13,9 +13,12 @@ interface Props {
   durationOffset?: Duration; 
   startLock?: boolean;
   endLock?: boolean;
-  timeOptional?: boolean
+  timeOptional?: boolean;
+  disableTime?: boolean;
+  inputDuration?: boolean;
+
 }
-export default function TaskCreation({title, onSubmit, durationOffset=0, startLock=false, endLock=false, timeOptional=false}: Props) {
+export default function TaskCreation({title, onSubmit, durationOffset=0, startLock=false, endLock=false, timeOptional=false, disableTime=false, inputDuration=false}: Props) {
   const {colorScheme} = useColorScheme();
 
   //tasks here is only used to do form validation
@@ -30,6 +33,7 @@ export default function TaskCreation({title, onSubmit, durationOffset=0, startLo
     visible: true,
   })
 
+  console.log(task.title);
   const date = new Date(Math.floor(Date.now() / (Day)) * Day + durationOffset);
 
   const [timeStart, setTimeStart] = useState(date);
@@ -52,14 +56,15 @@ export default function TaskCreation({title, onSubmit, durationOffset=0, startLo
 
   }
 
-  let duration = timeEnd.getTime() - timeStart.getTime()
-  if (duration < 0) {
+  console.log(inputDuration)
+  let duration: number = inputDuration ? task.duration! : timeEnd.getTime() - timeStart.getTime()!
+
+  if (duration! < 0) {
     duration = 24 * Hour - duration;
   }
 
-
   useEffect(() => {
-    if (showTime) {
+    if (showTime && !disableTime) {
 
       setTask({...task, timestamp: getTimeStamp(timeStart.getTime() % Day), duration: duration});
     }
@@ -73,18 +78,27 @@ export default function TaskCreation({title, onSubmit, durationOffset=0, startLo
       <Form.TextField fieldName="Description" fieldValue={task.description} onFieldSet={(s) => setTask({...task, description: s})}/>
       <Form.ColorField fieldName="Color" fieldValue={task.color} onFieldSet={(c) => setTask({...task, color: c})}/>
       {
-        (timeOptional) ? 
-          <Form.SwitchField fieldName="Time? " fieldValue={showTime} onFieldSet={(b) => setShowTime(b)} />
-          :
-          <ThemedText>Time</ThemedText>
+        disableTime || (
+          (timeOptional) ? 
+            <Form.SwitchField fieldName="Time? " fieldValue={showTime} onFieldSet={(b) => setShowTime(b)} />
+            :
+            <ThemedText>Time</ThemedText>
+        )
       }
       {
-        showTime &&
-          <ThemedView className="flex flex-row justify-evenly">
-            <Form.TimeField fieldName="Start Time" disabled={!showTime || startLock} fieldValue={timeStart} onFieldSet={(d) => {console.log(d); return setTimeStart(d)}} />
-            <Form.TimeField fieldName="End Time" disabled={!showTime || endLock} fieldValue={timeEnd} onFieldSet={(d) => setTimeEnd(d)} />
-          </ThemedView>
+        disableTime || (
+          showTime &&
+            <ThemedView className="flex flex-row justify-evenly">
+              <Form.TimeField fieldName="Start Time" disabled={!showTime || startLock} fieldValue={timeStart} onFieldSet={(d) => setTimeStart(d)} />
+              <Form.TimeField fieldName="End Time" disabled={!showTime || endLock} fieldValue={timeEnd} onFieldSet={(d) => setTimeEnd(d)} />
+            </ThemedView>
+        )
       }
+      {
+        inputDuration && 
+          <Form.TextField fieldName="Duration (minutes)" fieldValue={task.duration?.toString() || "0"} onFieldSet={(d) => {console.log(d); return setTask({...task, duration: Number(d) * Minute})}} keyboardType="numeric"/>
+      }
+
       <ThemedText>Duration</ThemedText>
       <ThemedText>{durationToString(duration)}</ThemedText>
       <Form.Footer submitFunc={submit}/>
