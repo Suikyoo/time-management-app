@@ -58,13 +58,13 @@ TaskPalette.Tasks = ({className}: {className?: string}) => {
   const setTarget = useTaskTarget(state => state.setTask);
   const targetTask = useTaskTarget(state => state.task);
 
-  const onClickAdd = () => router.push("/tasks/template/");
+  const onClickAdd = () => router.push("/tasks/template");
 
   return <TaskPalette tasks={tasks} setTarget={setTarget} targetTask={targetTask} className={className} onClickAdd={onClickAdd}/>
 }
 
 TaskPalette.WeeklyTasks = ({className}: {className?: string}) => {
-  const tasks = useWeeklyTaskTemplates(state => state.tasks).filter(t => t.visible);
+  const tasks = useWeeklyTaskTemplates(state => state.tasks)//.filter(t => t.visible);
   const setTarget = useWeeklyTaskTarget(state => state.setTask);
   const targetTask = useWeeklyTaskTarget(state => state.task);
 

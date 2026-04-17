@@ -7,9 +7,8 @@ import { router } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
 import { useColorScheme } from "nativewind";
 import { useState } from "react";
-import { FlexStyle, StyleProp, TouchableOpacity, ScrollView } from "react-native";
-import { Timestamp } from "react-native-reanimated/lib/typescript/commonTypes";
-import { ViewStyle } from "react-native/Libraries/StyleSheet/StyleSheetTypes";
+import { FlexStyle, StyleProp, TouchableOpacity, ScrollView, TouchableOpacityProps } from "react-native";
+import { Timestamp } from "react-native-reanimated/lib/typescript/commonTypes"; import { ViewStyle } from "react-native/Libraries/StyleSheet/StyleSheetTypes";
 const weekdays = [
   "Sunday",
   "Monday",
@@ -20,10 +19,10 @@ const weekdays = [
   "Saturday",
 ]
 
-interface CellProp { name: string;
+interface CellProp extends TouchableOpacityProps{ 
+  name: string;
   className?: string;
   textInherit?: string;
-  touchable?: boolean;
   style?: ViewStyle;
 }
 
@@ -65,7 +64,7 @@ export default function WeekView() {
   const [rowSize, setRowSize] = useState(50);
 
 
-  const weeklyTasks: WeeklyTask[] = useWeeklyTasks(s => s.tasks);
+  const weeklyTasks = useWeeklyTasks(s => s.tasks);
 
   const timedWeeklyTasks = weeklyTasks.filter(t => t.timestamp);
   //cubify results to 30 min intervals
@@ -78,20 +77,22 @@ export default function WeekView() {
 
   const sizeStyle: ViewStyle = {height: rowSize};
 
-  function Cell({name, touchable, className, textInherit, style}: CellProp) { 
-    return <ThemedView textInherit={textInherit} className={"" + className || ""} style={{...sizeStyle, ...style}}>
-      <ThemedText className="text-center text-inherit">{name}</ThemedText>
-    </ThemedView>
+  function Cell({name, className, textInherit, style, ...rest}: CellProp) { 
+    return (
+        <ThemedView textInherit={textInherit} className={"" + className || ""} {...rest} style={{...sizeStyle, ...style}}>
+          <ThemedText className="text-center text-inherit">{name}</ThemedText>
+        </ThemedView>
+    )
   }
 
   function ColumnNames() {
     return (
       <ThemedView className="flex flex-row border-r-2 w-full">
-        <Cell name="Time" className="w-20 flex-2"/>
+        <Cell disabled name="Time" className="w-20 flex-2"/>
 
         {
           weekdays.map((d, index) => (
-            <Cell key={index} name={d.substring(0,3)} className="box-border px-2 rounded-md flex-1" />
+            <Cell disabled key={index} name={d.substring(0,3)} className="box-border px-2 rounded-md flex-1" />
           ))
         }
 
@@ -106,8 +107,7 @@ export default function WeekView() {
         {
           timeColumn.map((c, index) => (
               <Cell key={index} name={c} className="w-20"/>
-          ))
-        }
+          )) }
       </ThemedView>
 
     )
@@ -125,30 +125,28 @@ export default function WeekView() {
 
         {
           timeColumn.map((t, index) => (
-
-
-            <TouchableOpacity key={index} onPressOut={() => {
-              if (target) {
-                addTask(db, {...target, day: dayIndex, template_id: target.id, timestamp: getTimeStampfromString(t)});
-                return;
-              }
-
-              router.push({
-                pathname: "/weekly_tasks/[day]/[timestamp]",
-                params: {
-                  day: dayIndex.toString(),
-                  timestamp: t,
+            <TouchableOpacity
+              key={index} 
+              className="p-0 border-t-0 border-dashed border-slate-800 bg-zinc-950 rounded-sm"
+              onPressOut={() => {
+                if (target) {
+                  addTask(db, {...target, day: dayIndex, template_id: target.id, timestamp: getTimeStampfromString(t)});
+                  return;
                 }
-              })}}
-            >
-              {
-                (index == 0) ? 
-                  <Cell name="" className="p-0 border-dashed border-slate-800 bg-zinc-950 rounded-sm"/>
-                  :
-                  <Cell name="" className="p-0 border-t-0 border-dashed border-slate-800 bg-zinc-950 rounded-sm"/>
-              }
-            </TouchableOpacity>
 
+                router.push({
+                  pathname: "/weekly_tasks/[day]/[timestamp]",
+                  params: {
+                    day: dayIndex.toString(),
+                    timestamp: t,
+                  }
+                })}}
+            >
+              <Cell 
+                name="" 
+              
+            />
+            </TouchableOpacity>
           ))
         }
         {
@@ -167,15 +165,31 @@ export default function WeekView() {
             }
 
             return (
-              <Cell key={index} name={t.title} className="w-full box-border px-2 rounded-md" textInherit="color-black" style={{position: "absolute", top: loc, height: height, backgroundColor: t.color}}/>
+              <TouchableOpacity
+                style={{position: "absolute", top: loc, height: height, backgroundColor: t.color}} 
+                key={index} 
+                className="w-full box-border px-2 rounded-md" 
+                onLongPress={() => {
+                  router.push({
+                    pathname: "/weekly_tasks/(weekly_tasks)/[id]/update_or_delete",
+                    params: {
+                      id: t.id.toString(),
+                    }
+                  })
+                }}
+              >
+                <Cell 
+                name={t.title} 
+                textInherit="color-black" 
+                
+              />
+              </TouchableOpacity>
             )
           })
         }
       </ThemedView>
     )
-  }
-  return (
-    <ThemedView className="h-full w-full bg-zinc-100 dark:bg-zinc-950 box-border p-2" reset>
+  } return ( <ThemedView className="h-full w-full bg-zinc-100 dark:bg-zinc-950 box-border p-2" reset>
 
       <ThemedView reset className="flex flex-col my-safe justify-start w-full">
 

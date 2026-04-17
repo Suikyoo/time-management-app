@@ -42,4 +42,21 @@ each cell should be made to be an empty cell then tasks are above them with abso
 ## [day]/create must have only duration field after name, description, color as you already have the start time
 
 -----------------
-## need to create an edit form
+
+# update form:
+# create update form
+# task: add update form to taskpalette.list
+# task template: add update form to taskpalette.list
+# weekly task: add prompt asking for update or delete
+# weekly task template: add update form to taskpalette.list
+
+# delete:
+# task
+# task template 
+# weekly task: add prompt asking for update or delete
+# weekly task template
+
+---
+
+transfer the floating modals of update_or_delete, etc. from weekly_tasks/(weekly_tasks) to (tabs)/week
+

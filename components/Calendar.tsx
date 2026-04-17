@@ -56,7 +56,6 @@ export default function Calendar({date, active}: CalendarProp) {
   const deleteTask = useTasks(state => state.deleteTask);
 
   const target = useTaskTarget(state => state.task);
-
   const press = async(tasks: Task[], newDate: Date) => {
     if (!target) {
       router.push({
@@ -88,7 +87,7 @@ export default function Calendar({date, active}: CalendarProp) {
   }, [active]);
 
   return (
-    <ThemedView className="grow w-[33.33%] justify-start items-center box-border p-2">
+    <ThemedView reset className="grow w-[33.33%] justify-start items-center box-border p-2">
       <ThemedView className="flex-row items-center justify-center">
         <ThemedText>{month_names[page.month]}</ThemedText>
       </ThemedView>

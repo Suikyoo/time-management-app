@@ -17,7 +17,6 @@ export default function DayView({date, className, ...props}: Props) {
   const defaultStyle = "flex flex-row justify-between aspect-3/4"
   return (
     <ThemedView reset className={`${defaultStyle} ${className || ""}`} {...props}>
-
       <ThemedView 
         className="flex items-center justify-center rounded-lg bg-zinc-100 dark:bg-zinc-800 aspect-square" 
         style={styles.shadow}
@@ -31,7 +30,7 @@ export default function DayView({date, className, ...props}: Props) {
       </ThemedView>
 
       <ThemedView reset className="flex flex-col items-start justify-between w-1/3 ml-4 my-2 grow-3">
-        <ThemedText className="p-0 m-0">Tasks:</ThemedText>
+        <ThemedText>Tasks:</ThemedText>
         <ScrollView className="h-20">
           {
             tasks.map(t => (
@@ -40,9 +39,8 @@ export default function DayView({date, className, ...props}: Props) {
               </ThemedView>
             ))
           }
-        </ScrollView>
-        <TouchableOpacity className="self-end mr-7" onPressOut={() => router.push({
-          pathname: "/tasks/[datestamp]",
+        </ScrollView> 
+        <TouchableOpacity className="self-end mr-7" onPressOut={() => router.push({ pathname: "/tasks/[datestamp]",
           params: {
             datestamp: date.toISOString(),
           }

@@ -1,5 +1,5 @@
 import TaskCreation from "@/components/TaskCreation";
-import { TaskTemplate, useWeeklyTaskTemplates } from "@/lib/task/task";
+import { TaskTemplate, useWeeklyTaskTemplates, WeeklyTaskTemplate } from "@/lib/task/task";
 import { router } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
 
@@ -9,7 +9,7 @@ export default function Create() {
   const addToTemplates = useWeeklyTaskTemplates(s => s.createTask);
 
  const onSubmit = async(t: TaskTemplate) => {
-    const weeklyTemplate = {...t, timestamp: t.timestamp!, duration: t.duration!, visible: true};
+    const weeklyTemplate: WeeklyTaskTemplate = {...t, timestamp: t.timestamp, duration: t.duration!, visible: true};
     await addToTemplates(db, weeklyTemplate);
 
     router.back();

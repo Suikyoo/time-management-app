@@ -8,8 +8,7 @@ export default function Day() {
   const params = useLocalSearchParams<{datestamp: string}>()
 
   return (
-    <ThemedView className="bg-white dark:bg-zinc-800 m-auto w-96 h-64 box-border p-5">
-      {/*header*/}
+    <ThemedView className="bg-white dark:bg-zinc-800 m-auto w-3/4 h-80 box-border p-5">
       <ThemedView>
         <ThemedView className="flex flex-row">
           <ThemedButton className="w-8 mr-2" onPressOut={() => router.back()}>

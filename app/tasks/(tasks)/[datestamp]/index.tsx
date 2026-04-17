@@ -19,16 +19,33 @@ export default function TemplateView() {
     router.back();
   }
 
+  const delFunc = async(t: TaskTemplate) => {
+    router.push({
+      pathname: "/tasks/[id]/confirm_delete",
+      params: {
+        id: t.id.toString(),
+      }
+    })
+  }
+
+  const updateFunc = async(t: TaskTemplate) => {
+    router.push({
+      pathname: "/tasks/[id]/update",
+      params: {
+        id: t.id.toString(),
+      }
+    })
+  }
+
   const filterFunc = (t: Task) => {
-
-
-    return t.visible && (dateIsEqual(t.date, new Date(datestamp)))}
+    return t.visible && (dateIsEqual(t.date, new Date(datestamp)))
+  }
   return (
     <NewPage>
-      <ThemedText className="!text-black dark:!text-white">Select from Templates: </ThemedText>
+      <ThemedText>Select from Templates: </ThemedText>
       <TaskCard.Picker useFunc={useTaskTemplates} onPick={onPick}/>
-      <ThemedText className="!text-black dark:!text-white">Tasks: </ThemedText>
-      <TaskCard.List useFunc={useTasks} filterFunc={filterFunc}/>
+      <ThemedText>Tasks: </ThemedText>
+      <TaskCard.List useFunc={useTasks} filterFunc={filterFunc} delFunc={delFunc} updateFunc={updateFunc}/>
       <FooterPlusButton onPressOut={() => router.push({
         pathname: "/tasks/[datestamp]/create",
         params: {

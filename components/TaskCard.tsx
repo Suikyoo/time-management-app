@@ -1,4 +1,4 @@
-import {Task, TaskState, TaskTemplate} from "@/lib/task/task";
+import {ExtendedTaskState, Task, TaskState, TaskTemplate} from "@/lib/task/task";
 import {timeStampAfter, timeStampToString} from "@/lib/time/time";
 import {ThemedButton, ThemedText, ThemedView} from "./ThemedComponents";
 import { UseBoundStore } from "zustand";
@@ -11,8 +11,9 @@ interface TaskCardProps {
   className?: string; 
   opaque?: boolean;
   onDelete?: () => Promise<void>
+  onUpdate?: () => Promise<void>
 }
-export default function TaskCard({task, className, onDelete, opaque}: TaskCardProps) {
+export default function TaskCard({task, className, onDelete, onUpdate, opaque}: TaskCardProps) {
   const defaultStyle = "flex flex-row justify-between items-center box-border px-7"
   return (
     <ThemedView reset className={`${defaultStyle} ${className || ""}`} style={opaque ? {backgroundColor: task.color} : {borderWidth: 2, borderColor: task.color}}>
@@ -37,7 +38,13 @@ export default function TaskCard({task, className, onDelete, opaque}: TaskCardPr
       </ThemedButton>
         )
       }
-      
+      {
+        onUpdate && (
+      <ThemedButton className="h-12 rounded-xl" onPressOut={onUpdate}>
+        <ThemedText >Update</ThemedText>
+      </ThemedButton>
+        )
+      }
 
     </ThemedView>
   );
@@ -48,20 +55,25 @@ interface Props<T> {
   filterFunc?: (t: T) => boolean;
 }
 
+//troop func represents the members of template-types that can be massacred if the user says so
+interface ListProps<T> extends Props<T> {
+  delFunc?: (t: TaskTemplate) => Promise<void>; 
+  updateFunc?: (t: TaskTemplate) => Promise<void>;
+}
+
 interface PickerProps<T> extends Props<T> {
   onPick: (t: TaskTemplate) => Promise<void>;
 }
-
-TaskCard.List = <T extends TaskTemplate, >({useFunc, filterFunc}: Props<T>) => {
-  const db = useSQLiteContext();
+ 
+TaskCard.List = <T extends TaskTemplate,>({useFunc, filterFunc, delFunc=async(t) => {}, updateFunc=async(t) => {}}: ListProps<T>) => {
   const tasks = useFunc(s => s.tasks).filter((filterFunc) || (t => t.visible));
-  const deleteTask = useFunc(s => s.deleteTask);
+
   return (
     <ScrollView showsVerticalScrollIndicator={false}>
       <ThemedView>
         {
           tasks.map(t => (
-            <TaskCard task={t} key={t.id.toString()} onDelete={async() => {await deleteTask(db, t.id)}} className="w-full p-5 my-2 rounded-xl box-border bg-zinc-950 dark:bg-zinc-800"/>
+            <TaskCard task={t} key={t.id.toString()} onUpdate={async() => await updateFunc(t)} onDelete={async() => {await delFunc(t)}} className="w-full p-5 my-2 rounded-xl box-border bg-zinc-950 dark:bg-zinc-800"/>
           ))
         }
       </ThemedView>
@@ -70,7 +82,6 @@ TaskCard.List = <T extends TaskTemplate, >({useFunc, filterFunc}: Props<T>) => {
 }
 
 TaskCard.Picker = <T extends TaskTemplate,>({useFunc, onPick, filterFunc}: PickerProps<T>) => {
-  //const db = useSQLiteContext();
   const tasks = useFunc(s => s.tasks).filter((filterFunc) || (t => t.visible));
   return (
     <ScrollView showsVerticalScrollIndicator={false}>

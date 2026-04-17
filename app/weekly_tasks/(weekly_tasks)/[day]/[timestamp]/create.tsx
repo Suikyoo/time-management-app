@@ -18,7 +18,6 @@ export default function Create() {
     const id = await addToTemplates(db, weeklyTemplate);
 
     //instantiate a task of that invisible template
-    console.log(weeklyTemplate);
     await addToTasks(db, {...weeklyTemplate, day: Number(day), template_id: id});
   }
 

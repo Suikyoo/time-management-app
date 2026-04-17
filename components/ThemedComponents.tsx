@@ -16,7 +16,6 @@ const ThemeContext = createContext<inheritProps>({allInherit: "", textInherit: "
 export function ThemedView({className = "", reset, children, ...props}: inheritProps & ViewProps & {reset?: boolean}) {
   //this does nothing for now, but on the case where I have default native-wind styles, this is gonna be useful
   //styles defined outside this scope (className props) should have useColorScheme() statement in their own scopes
-
   const ctx = useContext(ThemeContext);
 
   for (const i of Object.keys(ctx) as (keyof inheritProps)[]) {
@@ -28,12 +27,12 @@ export function ThemedView({className = "", reset, children, ...props}: inheritP
     }
 
   }
-  
   const {colorScheme} = useColorScheme();
+
   return (
     <View {...props} className={`${className}`}>
       <ThemeContext.Provider value={ctx}>
-        {children}
+          {children}
       </ThemeContext.Provider>
     </View>
   )

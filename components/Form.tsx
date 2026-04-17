@@ -13,7 +13,7 @@ import { ColorProperties, rgbaColor } from "react-native-reanimated/lib/typescri
 export default function Form({children}: {children: React.ReactNode}) {
   return (
     <Pressable className="w-full h-full" onPressOut={() => {Keyboard.isVisible() ? Keyboard.dismiss() : router.back()}}>
-      <ThemedView reset className="bg-zinc-100 dark:bg-zinc-900 m-auto flex flex-col justify-start w-80 h-50 py-5 px-7 box-border">
+      <ThemedView reset className="bg-zinc-100 dark:bg-zinc-900 m-auto flex flex-col justify-start w-3/4 h-50 py-5 px-7 box-border">
         <Pressable onPressOut={e => e.stopPropagation()}>
           {children}
         </Pressable>
@@ -50,7 +50,7 @@ interface TimeFieldProps extends FieldProps<Date>{
 
 interface SwitchFieldProps extends FieldProps<boolean> {}
 
-interface ColorFieldProps extends FieldProps<ColorValue> {}
+interface ColorFieldProps extends FieldProps<ColorValue> { disabled: boolean }
 
 Form.Header = ({children}: HeaderProps) => (
   <ThemedText>{children}</ThemedText>
@@ -76,7 +76,7 @@ Form.TextField = ({fieldName, fieldValue, onFieldSet,...rest}: TextFieldProps) =
   
   <ThemedView>
     <ThemedText>{fieldName}</ThemedText>
-    <ThemedInput onChangeText={onFieldSet} {...rest}/>
+    <ThemedInput value={fieldValue} onChangeText={onFieldSet} {...rest} />
   </ThemedView>
 )
 
@@ -101,7 +101,7 @@ Form.SwitchField = ({fieldName, fieldValue, onFieldSet,...rest}: SwitchFieldProp
   </ThemedView>
 )
 
-Form.ColorField = ({fieldName, fieldValue, onFieldSet,...rest}: ColorFieldProps) => (
+Form.ColorField = ({fieldName, fieldValue, onFieldSet, disabled, ...rest}: ColorFieldProps) => (
   <ThemedView>
     <ThemedText>{fieldName}</ThemedText>
     <ThemedView className="h-10">
@@ -110,6 +110,7 @@ Form.ColorField = ({fieldName, fieldValue, onFieldSet,...rest}: ColorFieldProps)
           {
             colors.map((c, index) => (
               <TouchableOpacity 
+                disabled={disabled}
                 onPressOut={() => onFieldSet(c)}
                 key={index.toString()}
               >

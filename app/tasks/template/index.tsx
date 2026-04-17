@@ -8,24 +8,26 @@ import {useColorScheme} from "nativewind";
 export default function TemplateView() {
   const {colorScheme} = useColorScheme();
 
-  const taskList = useTasks(state => state.tasks);
-  const deleteTask = useTasks(state => state.deleteTask);
-  const deleteTemplate = useTaskTemplates(state => state.deleteTask);
-
-  const delFunct = async(db: SQLiteDatabase, template: TaskTemplate) => {
-    const tasks = taskList.filter(t => t.template_id === template.id);
-    for (const t of tasks) {
-      deleteTask(db, t.id);
-    }
-
-    deleteTemplate(db, template.id);
-
+  const delFunct = async(t: TaskTemplate) => {
+    router.push({
+      pathname: "/tasks/template/[id]/confirm_delete",
+      params: {
+        id: t.id.toString()
+      }
+    })
   }
-
+  const updateFunc = async(t: TaskTemplate) => {
+    router.push({
+      pathname: "/tasks/template/[id]/update",
+      params: {
+        id: t.id.toString()
+      }
+    })
+  }
   return (
     <NewPage>
       <ThemedText>Templates: </ThemedText>
-      <TaskCard.List useFunc={useTaskTemplates}/>
+      <TaskCard.List useFunc={useTaskTemplates} delFunc={delFunct} updateFunc={updateFunc}/>
       <FooterPlusButton onPressOut={() => router.push("/tasks/template/create")}/>
     </NewPage>
   );
